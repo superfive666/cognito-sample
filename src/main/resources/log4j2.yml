@@ -5,7 +5,7 @@ Configuration:
       PatternLayout:
         Pattern: "%yellow{%d{ISO8601}} [%-5level] %green{${hostName}} --- [%15.15t] %cyan{%-40.40c{1.}} : %m%n%ex"
       thresholdFilter:
-        level: debug
+        level: info
     RollingFile:
       - name: LogToRollingFile
         fileName: logs/app.log
@@ -22,13 +22,13 @@ Configuration:
   Loggers:
     logger:
       - name: com.osakakuma.opms
-        level: debug
+        level: info
         additivity: false
         AppenderRef:
           - ref: LogToConsole
           - ref: LogToRollingFile
     Root:
-      level: debug
+      level: info
       AppenderRef:
         - ref: LogToConsole
         - ref: LogToRollingFile

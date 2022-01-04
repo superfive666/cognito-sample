@@ -24,7 +24,9 @@ spring:
       kv:
         backend: opms
         default-context: opms
-
+      scheme: http
+  config:
+    import: vault://
 # application related configuration below
 
 

@@ -38,6 +38,12 @@
 			<artifactId>spring-cloud-starter-vault-config</artifactId>
 		</dependency>
 
+		<!-- Spring Configuration Processor -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>
+
 		<!-- Log4j2 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -53,6 +59,12 @@
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
 			<version>1.4.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
