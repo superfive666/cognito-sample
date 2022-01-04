@@ -1,0 +1,34 @@
+Configuration:
+  appenders:
+    Console:
+      name: LogToConsole
+      PatternLayout:
+        Pattern: "%yellow{%d{ISO8601}} [%-5level] %green{${hostName}} --- [%15.15t] %cyan{%-40.40c{1.}} : %m%n%ex"
+      thresholdFilter:
+        level: debug
+    RollingFile:
+      - name: LogToRollingFile
+        fileName: logs/app.log
+        filePattern: "logs/${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
+        PatternLayout:
+          Pattern: "%d{ISO8601} [%-5level] --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 10MB
+        DefaultRollOverStrategy:
+          max: 10
+        thresholdFilter:
+          level: info
+  Loggers:
+    logger:
+      - name: com.osakakuma.opms
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+    Root:
+      level: debug
+      AppenderRef:
+        - ref: LogToConsole
+        - ref: LogToRollingFile

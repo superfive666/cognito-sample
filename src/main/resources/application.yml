@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: opms-java-app
+  datasource:
+    url: ${database.url}
+    username: ${database.username}
+    password: ${database.password}
+    hikari:
+      driver-class-name: org.postgresql.Driver
+      schema: ${database.schema}
+      maximum-pool-size: 10
+  cloud:
+    vault:
+      enabled: true
+      uri: ${VAULT_ADDR}
+      config:
+        lifecycle:
+          enabled: false
+      session:
+        lifecycle:
+          enabled: false
+      authentication: token
+      token: ${VAULT_TOKEN}
+      kv:
+        backend: opms
+        default-context: opms
+
+# application related configuration below
+
+
+#swgger configuration
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  api-docs:
+    path: /jpi/swagger/api-docs
+  swagger-ui:
+    path: /jpi/swagger/swgger-ui.html
+    disable-swagger-default-url: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    default-model-expand-depth: 3
+    default-models-expand-depth: 3
+    default-model-rendering: model
+
+# mybatis configuration
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 60
+    jdbc-type-for-null: varchar
+
+# pagination configuration
+pagehelper:
+  # enable auto db dialect for pagination
+  auto-dialect: true
+  # reasonable pagination flag configuration
+  reasonable: true
+  # accept parameterized pagination - true
+  support-methods-arguments: true
