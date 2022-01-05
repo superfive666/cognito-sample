@@ -1,5 +1,8 @@
 package com.osakakuma.opms.config;
 
+import com.osakakuma.opms.config.core.JwtDecoder;
+import com.osakakuma.opms.config.core.SessionArgumentResolver;
+import com.osakakuma.opms.config.core.SessionInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,8 @@ import java.util.Locale;
 @Configuration
 @RequiredArgsConstructor
 public class SessionConfig implements WebMvcConfigurer {
+    private final JwtDecoder jwtDecoder;
+
     @Bean
     public CookieLocaleResolver cookieLocaleResolver() {
         var resolver = new CookieLocaleResolver();
@@ -24,11 +29,11 @@ public class SessionConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // TODO
+        registry.addInterceptor(new SessionInterceptor(jwtDecoder));
     }
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        // TODO
+        resolvers.add(new SessionArgumentResolver());
     }
 }

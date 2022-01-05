@@ -1,5 +1,6 @@
 package com.osakakuma.opms.config.core;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.osakakuma.opms.config.model.CognitoUser;
 import com.osakakuma.opms.error.OpmsUnauthorizedException;
 import com.osakakuma.opms.util.OpmsAssert;
@@ -20,6 +21,10 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (request.getServletPath().startsWith("/jpi/swagger")) {
+            // exclude swagger page from checking
+            return Boolean.TRUE;
+        }
         var user = getCognitoUser(request);
         request.setAttribute(SESSION_USER, user);
         return Objects.nonNull(user);
@@ -30,6 +35,9 @@ public class SessionInterceptor implements HandlerInterceptor {
         OpmsAssert.authorize(jwt, () -> "Missing authentication tokens");
         try {
             return resolveJwt(jwt);
+        } catch (TokenExpiredException ex) {
+            log.error("Token expired");
+            throw new OpmsUnauthorizedException("Token expired");
         } catch (Exception ex) {
             log.error("Invalid JWT token received");
             throw new OpmsUnauthorizedException("Invalid JWT token");
