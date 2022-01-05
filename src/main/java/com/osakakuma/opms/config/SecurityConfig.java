@@ -1,14 +1,21 @@
 package com.osakakuma.opms.config;
 
-import com.osakakuma.opms.config.model.CognitoJwk;
+import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.JwkProviderBuilder;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.text.MessageFormat;
 
 @Slf4j
@@ -16,7 +23,7 @@ import java.text.MessageFormat;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "opms.security")
-public class SecurityConfig {
+public class SecurityConfig implements RSAKeyProvider {
     /**
      * The default AWS region where the cognito user pool is deployed to.
      * If multiple AWS services are used, there can be different aws regions configured, but this value should
@@ -29,10 +36,14 @@ public class SecurityConfig {
      */
     private String cognitoPoolId;
     /**
+     * If audience is provided will add audience
+     */
+    private String audience;
+    /**
      * This attribute is initialized at server start up only once, to pull from AWS the latest
      * cognito jwk public key for verification purpose
      */
-    private CognitoJwk cognitoJwk;
+    private JwkProvider jwkProvider;
 
     /**
      * Download and store the corresponding public JSON Web Key (JWK) for your user pool.
@@ -41,12 +52,28 @@ public class SecurityConfig {
      * https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json
      */
     @PostConstruct
+    @SneakyThrows(MalformedURLException.class)
     public void pullAwsCognitoKeys() {
-        var restTemplate = new RestTemplate();
         var url = MessageFormat.format(
                 "https://cognito-idp.{0}.amazonaws.com/{1}/.well-known/jwks.json",
                 awsRegion, cognitoPoolId);
 
-        this.cognitoJwk = restTemplate.getForObject(url, CognitoJwk.class);
+       this.jwkProvider = new JwkProviderBuilder(new URL(url)).build();
+    }
+
+    @Override
+    @SneakyThrows(JwkException.class)
+    public RSAPublicKey getPublicKeyById(String keyId) {
+        return (RSAPublicKey) jwkProvider.get(keyId).getPublicKey();
+    }
+
+    @Override
+    public RSAPrivateKey getPrivateKey() {
+        return null;
+    }
+
+    @Override
+    public String getPrivateKeyId() {
+        return null;
     }
 }

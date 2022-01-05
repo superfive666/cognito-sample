@@ -93,7 +93,11 @@ public class MessageConfig {
             var loc = locale.toLanguageTag();
             OpmsAssert.isTrue(args.length == 2, () -> "JDBC message lookup code incorrect number of arguments");
 
-            var sql = "select val from message_i18n where key = ? and category = ? and locale = ?";
+            var sql = """
+                select val
+                from message_i18n
+                where key = ? and category = ? and locale = ?
+            """;
             var message = jdbcTemplate.queryForObject(sql, String.class, args[0], args[1], loc);
 
             OpmsAssert.isTrue(StringUtils.isNotEmpty(message), () ->
