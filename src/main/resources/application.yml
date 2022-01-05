@@ -27,8 +27,12 @@ spring:
       scheme: http
   config:
     import: vault://
-# application related configuration below
 
+# application related configuration below
+opms:
+  security:
+    aws-region: ${security.awsRegion}
+    cognito-pool-id: ${security.cognitoPoolId}
 
 #swgger configuration
 springdoc:
