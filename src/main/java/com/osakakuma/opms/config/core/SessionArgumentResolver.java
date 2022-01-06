@@ -1,7 +1,7 @@
 package com.osakakuma.opms.config.core;
 
 import com.osakakuma.opms.config.model.CognitoUser;
-import com.osakakuma.opms.util.OpmsAssert;
+import com.osakakuma.opms.common.util.OpmsAssert;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;

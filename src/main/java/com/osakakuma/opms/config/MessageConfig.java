@@ -1,6 +1,6 @@
 package com.osakakuma.opms.config;
 
-import com.osakakuma.opms.util.OpmsAssert;
+import com.osakakuma.opms.common.util.OpmsAssert;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;

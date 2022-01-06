@@ -1,6 +1,8 @@
 package com.osakakuma.opms.config.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.osakakuma.opms.common.util.OpmsAssert;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -19,4 +21,8 @@ public record CognitoUser (
         @JsonProperty("iat") Long iat,
         @JsonProperty("jti") String jti,
         @JsonProperty("email") String email
-) { }
+) {
+    public CognitoUser {
+        OpmsAssert.isTrue(StringUtils.isNotBlank(username), () -> "Login user without username");
+    }
+}

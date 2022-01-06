@@ -1,6 +1,6 @@
 package com.osakakuma.opms.error;
 
-import com.osakakuma.opms.util.BaseResponse;
+import com.osakakuma.opms.common.model.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

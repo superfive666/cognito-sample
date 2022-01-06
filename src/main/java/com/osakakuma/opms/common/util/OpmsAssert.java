@@ -1,4 +1,4 @@
-package com.osakakuma.opms.util;
+package com.osakakuma.opms.common.util;
 
 import com.osakakuma.opms.config.model.CognitoUser;
 import com.osakakuma.opms.error.OpmsException;

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osakakuma.opms.product.dao.ProductMapper">
+    <select id="getProductMasterBySku" resultType="com.osakakuma.opms.product.entity.ProductMaster">
+        select * from product_master where sku = #{sku}
+    </select>
+
+    <select id="getProductPriceBySku" resultType="com.osakakuma.opms.product.entity.ProductPrice">
+        select * from product_price where sku = #{sku}
+    </select>
+
+    <select id="getProductInfoBySku" resultType="com.osakakuma.opms.product.entity.ProductInfo">
+        select * from product_info where sku = #{sku}
+    </select>
+
+    <select id="getProductRecordBySku" resultType="com.osakakuma.opms.product.model.ProductRecord">
+
+    </select>
+
+    <select id="listProductRecords" resultType="com.osakakuma.opms.product.model.ProductRecord">
+
+    </select>
+
+    <insert id="insertProductMaster">
+        insert into product_master (sku, category, sub_category, brand, four_quadrant, hs_code, hs_code_desc, created_by, status)
+        values (#{sku}, #{category}, #{subCategory}, #{brand}, #{fourQuadrant}, #{hsCode}, #{hsCodeDesc}, #{createdBy}, #{status})
+    </insert>
+
+    <insert id="insertProductInfo">
+        insert into product_info(sku, name_en, name_jp, name_zh, function_en, function_jp, function_zh, instruction_en,
+                                 instruction_jp, instruction_zh, caution_en, caution_jp, caution_zh, ingredient_en,
+                                 ingredient_jp, ingredient_zh, origin_en, origin_jp, manufacturer_addr_en,
+                                 manufacturer_addr_jp, manufacturer_addr_zh)
+        values (#{sku}, #{nameEn}, #{nameJp}, #{nameZh}, #{functionEn}, #{functionJp}, #{functionZh}, #{instructionEn},
+                #{instructionJp}, #{instructionZh}, #{cautionEn}, #{cautionJp}, #{cautionZh}, #{ingredientEn},
+                #{ingredientJp}, #{ingredientZh}, #{originEn}, #{originJp}, #{manufacturerAddrEn}, #{manufacturerAddrJp},
+                #{manufacturerAddrZh})
+    </insert>
+
+    <insert id="insertProductPrice">
+        insert into product_price (sku, sell_price, cost_price, gross_margin, remark, status)
+        values (#{sku}, #{sellPrice}, #{costPrice}, #{grossMargin}, #{remark}, #{status})
+    </insert>
+    
+    <update id="updateProductMaster">
+        update product_master
+        set category = #{category},
+            sub_category = #{subCategory},
+            brand = #{brand},
+            four_quadrant = #{fourQuadrant},
+            hs_code = #{hsCode},
+            hs_code_desc = #{hsCodeDesc},
+            status = #{status},
+            updated = current_timestamp,
+            updated_by = #{updatedBy}
+        where sku = #{sku}
+    </update>
+    
+    <update id="updateProductInfo">
+        
+    </update>
+    
+    <update id="updateProductPrice">
+
+    </update>
+</mapper>

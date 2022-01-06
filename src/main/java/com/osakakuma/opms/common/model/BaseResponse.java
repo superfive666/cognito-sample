@@ -1,4 +1,4 @@
-package com.osakakuma.opms.util;
+package com.osakakuma.opms.common.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

@@ -3,7 +3,7 @@ package com.osakakuma.opms.config.core;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.osakakuma.opms.config.model.CognitoUser;
 import com.osakakuma.opms.error.OpmsUnauthorizedException;
-import com.osakakuma.opms.util.OpmsAssert;
+import com.osakakuma.opms.common.util.OpmsAssert;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
