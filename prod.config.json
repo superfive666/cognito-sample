@@ -1,5 +1,6 @@
 {
   "name": "dashboard-java",
+  "version": "0.0.1-SNAPSHOT",
   "script": "java",
   "args": [
     "-Xms256m",
