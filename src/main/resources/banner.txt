@@ -1,0 +1,9 @@
+${Ansi.BLUE}   ___                  _              _
+${Ansi.BLUE}  / _ \   ___    __ _  | | __   __ _  | | __  _   _   _ __ ___     __ _
+${Ansi.BLUE} | | | | / __|  / _` | | |/ /  / _` | | |/ / | | | | | '_ ` _ \   / _` |
+${Ansi.BLUE} | |_| | \__ \ | (_| | |   <  | (_| | |   <  | |_| | | | | | | | | (_| |
+${Ansi.BLUE}  \___/  |___/  \__,_| |_|\_\  \__,_| |_|\_\  \__,_| |_| |_| |_|  \__,_|
+
+${Ansi.BLUE}${application.title} ${application.version}
+${Ansi.BLUE}Powered by Spring Boot ${spring-boot.version}
+${Ansi.BLUE}Copyright© osakakuma 2021

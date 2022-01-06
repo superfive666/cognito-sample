@@ -12,4 +12,3 @@ comment on column message_i18n.key is 'Message key for locating the translated t
 comment on column message_i18n.val is 'The translated message content to be stored';
 comment on column message_i18n.category is 'Message category for locating the translated text - required';
 grant select, insert, update, delete on message_i18n to opms_app_role;
-
