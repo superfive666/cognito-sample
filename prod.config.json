@@ -1,0 +1,13 @@
+{
+  "name": "dashboard-java",
+  "script": "java",
+  "args": [
+    "-Xms256m",
+    "-Xmx1024m",
+    "-Dspring.profiles.active=prod",
+    "-jar",
+    "target/app.jar"
+  ],
+  "exec_interpreter": "",
+  "exec_mode": "fork"
+}
