@@ -14,11 +14,37 @@
     </select>
 
     <select id="getProductRecordBySku" resultType="com.osakakuma.opms.product.model.ProductRecord">
-
+        select pm.sku, pm.category, pm.sub_category, pm.brand, pm.four_quadrant, pm.hs_code,
+               pm.hs_code_desc, pm.specs, pm.weight, pm.created, pm.created_by, pm.updated,
+               pm.updated_by, pm.status, pm.approved, pm.approved_by,
+               pi.name_en, pi.name_jp, pi.name_zh, pi.function_en, pi.function_jp, pi.function_zh,
+               pi.instruction_en, pi.instruction_jp, pi.instruction_zh, pi.caution_en, pi.caution_jp,
+               pi.caution_zh, pi.ingredient_en, pi.ingredient_jp, pi.ingredient_zh, pi.origin_en,
+               pi.origin_jp, pi.manufacturer_addr_en, pi.manufacturer_addr_jp, pi.manufacturer_addr_zh,
+               pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark, pp.status as price_status
+        from product_master pm
+                 inner join product_info pi on pm.sku = pi.sku
+                 inner join product_price pp on pi.sku = pp.sku
+        where pm.sku = #{sku}
     </select>
 
     <select id="listProductRecords" resultType="com.osakakuma.opms.product.model.ProductRecord">
+        select pm.sku, pm.category, pm.sub_category, pm.brand, pm.four_quadrant, pm.hs_code,
+               pm.hs_code_desc, pm.specs, pm.weight, pm.created, pm.created_by, pm.updated,
+               pm.updated_by, pm.status, pm.approved, pm.approved_by,
+               pi.name_en, pi.name_jp, pi.name_zh, pi.function_en, pi.function_jp, pi.function_zh,
+               pi.instruction_en, pi.instruction_jp, pi.instruction_zh, pi.caution_en, pi.caution_jp,
+               pi.caution_zh, pi.ingredient_en, pi.ingredient_jp, pi.ingredient_zh, pi.origin_en,
+               pi.origin_jp, pi.manufacturer_addr_en, pi.manufacturer_addr_jp, pi.manufacturer_addr_zh,
+               pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark, pp.status as price_status
+        from product_master pm
+                 inner join product_info pi on pm.sku = pi.sku
+                 inner join product_price pp on pi.sku = pp.sku
+        <where>
+            <if test="">
 
+            </if>
+        </where>
     </select>
 
     <insert id="insertProductMaster">
@@ -52,15 +78,41 @@
             hs_code_desc = #{hsCodeDesc},
             status = #{status},
             updated = current_timestamp,
-            updated_by = #{updatedBy}
+            updated_by = #{updatedBy},
+            approved = #{approved},
+            approved_by = #{approvedBy}
         where sku = #{sku}
     </update>
     
     <update id="updateProductInfo">
-        
+        update product_info
+        set name_en = #{nameEn},
+            name_jp = #{nameJp},
+            name_zh = #{nameZh},
+            function_en = #{functionEn},
+            function_jp = #{functionJp},
+            function_zh = #{functionZh},
+            instruction_en = #{instructionEn},
+            instruction_jp = #{instructionJp},
+            instruction_zh = #{instructionZh},
+            ingredient_en = #{ingredientEn},
+            ingredient_jp = #{ingredientJp},
+            ingredient_zh = #{ingredientZh},
+            origin_en = #{originEn},
+            origin_jp = #{originJp},
+            manufacturer_addr_en = #{manufacturerAddrEn},
+            manufacturer_addr_jp = #{manufacturerAddrJp},
+            manufacturer_addr_zh = #{manufacturerAddrZh}
+        where sku = #{sku}
     </update>
     
     <update id="updateProductPrice">
-
+        update product_price
+        set sell_price = #{sellPrice},
+            cost_price = #{costPrice},
+            gross_margin = #{grossMargin},
+            remark = #{remark},
+            status = #{status}
+        where sku = #{sku}
     </update>
 </mapper>
