@@ -18,6 +18,12 @@ public class OpmsAssert {
         authorize(obj, () -> "Unauthorized request to OPMS backend system");
     }
 
+    public static void authorize(boolean condition, Supplier<String> message) {
+        if (!condition) {
+            throw new OpmsUnauthorizedException(message.get());
+        }
+    }
+
     public static void authorize(Object obj, Supplier<String> message) {
         if (Objects.isNull(obj)) {
             throw new OpmsUnauthorizedException(message.get());

@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @OpenAPIDefinition(servers = {
-		@Server(url = "https://opms.myosakakuma.com/", description = "API Server"),
-		@Server(url = "http://localhost:8080/", description = "Localhost For Testing")
+		@Server(url = "https://opms.myosakakuma.com/", description = "API server"),
+		@Server(url = "http://localhost:8080/", description = "Localhost for testing")
 })
 @SpringBootApplication
 @EnableConfigurationProperties
