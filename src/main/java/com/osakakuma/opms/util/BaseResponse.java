@@ -26,16 +26,16 @@ public class BaseResponse<E> {
                 .build();
     }
 
-    public static <T> BaseResponse<T> unauthorized(String message) {
-        return BaseResponse.<T>builder()
+    public static BaseResponse<Void> unauthorized(String message) {
+        return BaseResponse.<Void>builder()
                 .code(HttpStatus.FORBIDDEN.value())
                 .status("unauthorized")
                 .message(message)
                 .build();
     }
 
-    public static <T> BaseResponse<T> error(String message, String debugMessage) {
-        return BaseResponse.<T>builder()
+    public static BaseResponse<Void> error(String message, String debugMessage) {
+        return BaseResponse.<Void>builder()
                 .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .status("server_error")
                 .message(message)
