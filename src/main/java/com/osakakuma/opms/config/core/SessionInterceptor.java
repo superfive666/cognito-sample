@@ -23,7 +23,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (request.getServletPath().startsWith("/jpi/swagger")) {
+        if (request.getServletPath().contains("swagger")) {
             // exclude swagger page from checking
             return Boolean.TRUE;
         }
