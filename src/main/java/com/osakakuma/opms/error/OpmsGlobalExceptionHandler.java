@@ -14,13 +14,12 @@ public class OpmsGlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(OpmsUnauthorizedException.class)
     public ResponseEntity<BaseResponse<Void>> unauthorized(OpmsUnauthorizedException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(BaseResponse.unauthorized(e.getMessage()));
+        return BaseResponse.unauthorized(e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(OpmsException.class)
     public ResponseEntity<BaseResponse<Void>> internalServerError(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(BaseResponse.error(e.getMessage(), Arrays.toString(e.getStackTrace())));
+        return BaseResponse.error(e.getMessage(), Arrays.toString(e.getStackTrace()));
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 public record CognitoUser (
         @JsonProperty("at_hash") String atHash,
         @JsonProperty("sub") String sub,
-        @JsonProperty("cognito:groups") List<String> groups,
+        @JsonProperty("cognito:groups") List<CognitoRole> groups,
         @JsonProperty("iss") String iss,
         @JsonProperty("cognito:username") String username,
         @JsonProperty("aud") String aud,

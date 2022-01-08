@@ -1,5 +1,6 @@
 package com.osakakuma.opms.product.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.osakakuma.opms.product.entity.ProductMasterStatus;
 import com.osakakuma.opms.product.entity.ProductPriceStatus;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.time.Instant;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductRecord {
     private String sku;
     private String category;

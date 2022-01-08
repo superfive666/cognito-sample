@@ -25,7 +25,7 @@
         from product_master pm
                  inner join product_info pi on pm.sku = pi.sku
                  inner join product_price pp on pi.sku = pp.sku
-        where pm.sku = #{sku}
+        where pm.sku = #{sku} and pm.status != 'REMOVED'
     </select>
 
     <select id="listProductRecords" resultType="com.osakakuma.opms.product.model.ProductRecord">
@@ -41,6 +41,7 @@
                  inner join product_info pi on pm.sku = pi.sku
                  inner join product_price pp on pi.sku = pp.sku
         <where>
+            and pm.status != 'REMOVED'
             <if test="">
 
             </if>
