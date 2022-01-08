@@ -87,3 +87,7 @@ comment on column product_price.gross_margin is 'The margin that the current pro
 comment on column product_price.remark is 'Free text field for user input on pricing information';
 comment on column product_price.status is 'Enum value of current pricing information - IN_USE is default';
 grant select, insert, update, delete on product_price to opms_app_role;
+
+create index idx_sell_price on product_price (sell_price);
+create index idx_cost_price on product_price (cost_price);
+create index idx_gross_margin on product_price (gross_margin);

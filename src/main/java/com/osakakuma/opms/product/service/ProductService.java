@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoRole;
 import com.osakakuma.opms.config.model.CognitoUser;
+import com.osakakuma.opms.product.dao.ProductAuxiliaryMapper;
 import com.osakakuma.opms.product.dao.ProductMapper;
 import com.osakakuma.opms.product.entity.*;
 import com.osakakuma.opms.product.model.ProductCreateRequest;
@@ -13,11 +14,13 @@ import com.osakakuma.opms.product.model.ProductRecord;
 import com.osakakuma.opms.product.model.ProductUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -25,6 +28,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductMapper productMapper;
+    private final ProductAuxiliaryMapper productAuxiliaryMapper;
+
+    @Transactional(readOnly = true, timeout = 60)
+    public Boolean skuAvailable(String sku) {
+        return Boolean.TRUE.equals(productAuxiliaryMapper.skuExists(sku));
+    }
 
     @Transactional(readOnly = true, timeout = 60)
     public ProductRecord getProductRecordDetails(CognitoUser user, String sku) {
@@ -43,7 +52,14 @@ public class ProductService {
     }
 
     private ProductRecord maskSensitiveData(CognitoUser user, ProductRecord record) {
-        // TODO: in the future to add data masking logic for sensitive pricing information
+        if (!admin(user)) {
+           record.setSellPrice(null);
+           record.setCostPrice(null);
+           record.setGrossMargin(null);
+           record.setRemark(null);
+           record.setPriceStatus(null);
+        }
+
         return record;
     }
 
@@ -55,8 +71,10 @@ public class ProductService {
         var info = getProductInfo(request);
         productMapper.insertProductInfo(info);
 
-        var price = getProductPrice(request);
-        productMapper.insertProductPrice(price);
+        if (admin(user)) {
+            var price = getProductPrice(request);
+            productMapper.insertProductPrice(price);
+        }
 
         return request.sku();
     }
@@ -65,46 +83,20 @@ public class ProductService {
         OpmsAssert.isTrue(ProductMasterStatus.DRAFT.equals(request.status()) ||
                 ProductMasterStatus.PENDING.equals(request.status()),
                 () -> "Invalid product status during creation");
-        return ProductMaster.builder()
-                .sku(request.sku())
-                .category(request.category())
-                .subCategory(request.subCategory())
-                .brand(request.brand())
-                .fourQuadrant(request.fourQuadrant())
-                .hsCode(request.hsCode())
-                .hsCodeDesc(request.hsCodeDesc())
-                .specs(request.specs())
-                .weight(request.weight())
-                .status(request.status())
+        var master =  ProductMaster.builder()
                 .created(Instant.now())
                 .createdBy(user.username())
                 .build();
+        BeanUtils.copyProperties(request, master);
+
+        return master;
     }
 
     private ProductInfo getProductInfo(ProductCreateRequest request) {
-        return ProductInfo.builder()
-                .sku(request.sku())
-                .nameEn(request.nameEn())
-                .nameJp(request.nameJp())
-                .nameZh(request.nameZh())
-                .functionEn(request.functionEn())
-                .functionJp(request.functionJp())
-                .functionZh(request.functionZh())
-                .instructionEn(request.instructionEn())
-                .instructionJp(request.instructionJp())
-                .instructionZh(request.instructionZh())
-                .cautionEn(request.cautionEn())
-                .cautionJp(request.cautionJp())
-                .cautionZh(request.cautionZh())
-                .ingredientEn(request.ingredientEn())
-                .ingredientJp(request.ingredientJp())
-                .ingredientZh(request.ingredientZh())
-                .originEn(request.originEn())
-                .originJp(request.originJp())
-                .manufacturerAddrEn(request.manufacturerAddrEn())
-                .manufacturerAddrJp(request.manufacturerAddrJp())
-                .manufacturerAddrZh(request.manufacturerAddrZh())
-                .build();
+        var info = ProductInfo.builder().build();
+        BeanUtils.copyProperties(request, info);
+
+        return info;
     }
 
     private ProductPrice getProductPrice(ProductCreateRequest request) {
@@ -123,6 +115,8 @@ public class ProductService {
     @Transactional(rollbackFor = Exception.class)
     public String updateProductMasterRecord(CognitoUser user, ProductUpdateRequest request) {
         var master = productMapper.getProductMasterBySku(request.sku());
+        OpmsAssert.isTrue(Objects.nonNull(master), () -> "Product not exists or already deleted");
+
         updateProductMaster(user, master, request);
 
         var info = productMapper.getProductInfoBySku(request.sku());
@@ -139,15 +133,23 @@ public class ProductService {
                         ProductMasterStatus.PENDING.equals(request.status()),
                 () -> "Invalid product status during update");
 
-
+        BeanUtils.copyProperties(request, master);
+        master.setUpdated(Instant.now());
+        master.setUpdatedBy(user.username());
+        productMapper.updateProductMaster(master);
     }
 
     private void updateProductInfo(ProductInfo info, ProductUpdateRequest request) {
-
+        BeanUtils.copyProperties(request, info);
+        productMapper.updateProductInfo(info);
     }
 
     private void updateProductPrice(ProductPrice price, ProductUpdateRequest request) {
-
+        BeanUtils.copyProperties(request, price);
+        price.setSellPrice(Optional.ofNullable(request.sellPrice()).orElse(BigDecimal.ZERO));
+        price.setCostPrice(Optional.ofNullable(request.costPrice()).orElse(BigDecimal.ZERO));
+        price.setGrossMargin(Optional.ofNullable(request.grossMargin()).orElse(BigDecimal.ZERO));
+        price.setStatus(request.priceStatus());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -155,6 +157,9 @@ public class ProductService {
         var master = productMapper.getProductMasterBySku(sku);
         OpmsAssert.isTrue(user.groups().contains(CognitoRole.ADMIN) ||
                 user.groups().contains(CognitoRole.SUPER_ADMIN), () -> "Only admin user can approve product master");
+
+        OpmsAssert.isTrue(Objects.nonNull(master), () -> "Product not exists or already deleted");
+        OpmsAssert.isTrue(!ProductMasterStatus.APPROVED.equals(master.getStatus()), () -> "Already approved");
 
         master.setApproved(Instant.now());
         master.setApprovedBy(user.username());
@@ -166,6 +171,8 @@ public class ProductService {
     @Transactional(rollbackFor = Exception.class)
     public String deleteProductMasterRecord(CognitoUser user, String sku) {
         var master = productMapper.getProductMasterBySku(sku);
+        OpmsAssert.isTrue(Objects.nonNull(master), () -> "Product not exists or already deleted");
+
         master.setStatus(ProductMasterStatus.REMOVED);
         master.setUpdated(Instant.now());
         master.setUpdatedBy(user.username());
@@ -174,5 +181,9 @@ public class ProductService {
         productMapper.updateProductMaster(master);
 
         return sku;
+    }
+
+    private boolean admin(CognitoUser user) {
+        return user.groups().contains(CognitoRole.ADMIN) || user.groups().contains(CognitoRole.SUPER_ADMIN);
     }
 }
