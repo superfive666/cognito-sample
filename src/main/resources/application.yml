@@ -33,7 +33,12 @@ opms:
   security:
     aws-region: ${security.awsRegion}
     cognito-pool-id: ${security.cognitoPoolId}
+    # enable the below for validation with aws cognito app-id (audience)
     # audience: ${security.audience:}
+  s3:
+    region: ap-southeast-1
+    bucket: opms-assets
+
 
 #swgger configuration
 springdoc:

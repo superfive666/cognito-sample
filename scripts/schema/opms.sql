@@ -88,6 +88,54 @@ comment on column product_price.remark is 'Free text field for user input on pri
 comment on column product_price.status is 'Enum value of current pricing information - IN_USE is default';
 grant select, insert, update, delete on product_price to opms_app_role;
 
-create index idx_sell_price on product_price (sell_price);
-create index idx_cost_price on product_price (cost_price);
-create index idx_gross_margin on product_price (gross_margin);
+create index if not exists idx_sell_price on product_price (sell_price);
+create index if not exists idx_cost_price on product_price (cost_price);
+create index if not exists idx_gross_margin on product_price (gross_margin);
+
+-- File upload common table
+create table if not exists file_upload (
+    id character varying (36) primary key,
+    module character varying (10) not null,
+    file_name character varying (50) not null,
+    file_ext character varying (6) not null,
+    author character varying (30) not null,
+    created timestamp default current_timestamp not null,
+    updated timestamp,
+    status character varying (10) default 'OK' not null
+);
+comment on table file_upload is 'The centrally managed repository for all files uploaded to S3 bucket of OPMS';
+comment on column file_upload.id is 'Globally unique ID for identifying the file uploaded within the system';
+comment on column file_upload.module is 'The current modules available in system, referring to FileModule Enum class';
+comment on column file_upload.file_name is 'The file name uploaded (without file extension)';
+comment on column file_upload.file_ext is 'The file extension, for example jpg';
+comment on column file_upload.author is 'The cognito username who uploaded this file';
+comment on column file_upload.created is 'The file upload creation timestamp';
+comment on column file_upload.updated is 'The file upload update timestamp';
+comment on column file_upload.status is 'The file status in S3, OK - available in S3, ARCHIVED - archived but still available, DELETED - removed from s3';
+grant select, insert, update, delete on file_upload to opms_app_role;
+
+create index if not exists idx_file_author on file_upload(author);
+
+-- Product Master Images Management
+create table if not exists product_image (
+    sku character varying (20),
+    file_id character varying (36),
+    height numeric (9,2) default 0 not null,
+    width numeric (9,2) default 0 not null,
+    path character varying not null,
+    seq numeric (2,0) default 0 not null,
+    constraint fk_product_image_sku foreign key (sku)
+    references product_master (sku)
+    on delete cascade,
+    constraint fk_product_image_file_id foreign key (file_id)
+    references file_upload (id)
+    on delete cascade
+);
+comment on table product_image is 'Product image link corresponding to the product master table information';
+comment on column product_image.sku is 'Globally unique identifier for the product master record';
+comment on column product_image.file_id is 'Foreign key mapping to the ID column of file_upload table';
+comment on column product_image.height is 'The image height parameter for front-end rendering purpose';
+comment on column product_image.width is 'The image width parameter for front-end rendering purpose';
+comment on column product_image.path is 'The image URL request path parameter without the host name';
+comment on column product_image.seq is 'Zero-based index for the images related to the product record for ordering purpose';
+grant select, insert, update, delete on product_image to opms_app_role;
