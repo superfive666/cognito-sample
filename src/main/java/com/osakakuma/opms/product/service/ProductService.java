@@ -32,7 +32,7 @@ public class ProductService {
 
     @Transactional(readOnly = true, timeout = 60)
     public Boolean skuAvailable(String sku) {
-        return Boolean.TRUE.equals(productAuxiliaryMapper.skuExists(sku));
+        return !Boolean.TRUE.equals(productAuxiliaryMapper.skuExists(sku));
     }
 
     @Transactional(readOnly = true, timeout = 60)
@@ -104,6 +104,7 @@ public class ProductService {
                 () -> "The status of pricing information should be set to IN_USE during creation");
 
         return ProductPrice.builder()
+                .sku(request.sku())
                 .sellPrice(Optional.ofNullable(request.sellPrice()).orElse(BigDecimal.ZERO))
                 .costPrice(Optional.ofNullable(request.costPrice()).orElse(BigDecimal.ZERO))
                 .grossMargin(Optional.ofNullable(request.grossMargin()).orElse(BigDecimal.ZERO))

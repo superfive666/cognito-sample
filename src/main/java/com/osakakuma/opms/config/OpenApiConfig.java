@@ -38,7 +38,13 @@ public class OpenApiConfig {
                 .schema(new StringSchema())
                 .description("The id token from cognito login without Bearer prefix");
 
+        var contentType = new HeaderParameter()
+                .name("Content-Type")
+                .schema(new StringSchema())
+                .description("Content type of the header");
+
         var components = new Components().addParameters(authorization.getName(), authorization);
+        components.addParameters(contentType.getName(), contentType);
         openApi.setComponents(components);
 
         return openApi;

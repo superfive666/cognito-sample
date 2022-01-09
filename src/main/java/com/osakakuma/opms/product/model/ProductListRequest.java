@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
 
 public record ProductListRequest(
         @Schema(description = "page number starting with 1", required = true)
@@ -23,8 +22,8 @@ public record ProductListRequest(
         String brand,
         @Schema(description = "Search by name (all languages) - fuzzy search, case insensitive")
         String name,
-        @Schema(description = "Search by created begin time")
-        Instant begin,
-        @Schema(description = "Search by created end time")
-        Instant end
+        @Schema(description = "Order column name")
+        ProductMasterOrderColumn order,
+        @Schema(description = "Ascending or descending", defaultValue = "false")
+        boolean asc
 ) { }

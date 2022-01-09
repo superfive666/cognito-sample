@@ -14,14 +14,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/jpi/admin/product")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
 
-    @Operation(summary = "Check SKU", description = "Check if the sku already exists in database")
-    @GetMapping(value = "/skuExists", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Check SKU", description = "Check if the sku is available to be used")
+    @GetMapping(value = "/skuAvailable", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<Boolean>> skuExists(String sku) {
         return BaseResponse.success(productService.skuAvailable(sku));
     }
@@ -34,19 +36,19 @@ public class ProductController {
 
     @Operation(summary = "List Products", description = "List the products with pagination")
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<PageInfo<ProductRecord>>> listProductRecords(CognitoUser user, ProductListRequest request) {
+    public ResponseEntity<BaseResponse<PageInfo<ProductRecord>>> listProductRecords(CognitoUser user, @Valid ProductListRequest request) {
         return BaseResponse.success(productService.listProductMasterRecords(user, request));
     }
 
     @Operation(summary = "Create Product", description = "Create product or draft based on status, return SKU if success")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<String>> createProductRecord(CognitoUser user, ProductCreateRequest request) {
+    public ResponseEntity<BaseResponse<String>> createProductRecord(CognitoUser user, @RequestBody @Valid ProductCreateRequest request) {
         return BaseResponse.success(productService.createProductMasterRecord(user, request));
     }
 
     @Operation(summary = "Update Product", description = "Update product or draft based on status, return SKU if success")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<String>> updateProductRecord(CognitoUser user, ProductUpdateRequest request) {
+    public ResponseEntity<BaseResponse<String>> updateProductRecord(CognitoUser user, @RequestBody @Valid ProductUpdateRequest request) {
         return BaseResponse.success(productService.updateProductMasterRecord(user, request));
     }
 

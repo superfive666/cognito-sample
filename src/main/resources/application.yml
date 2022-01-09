@@ -33,7 +33,7 @@ opms:
   security:
     aws-region: ${security.awsRegion}
     cognito-pool-id: ${security.cognitoPoolId}
-    audience: ${security.audient:}
+    # audience: ${security.audience:}
 
 #swgger configuration
 springdoc:
