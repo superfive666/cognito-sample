@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProductUpdateRequest(
         @Schema(description = "Global unique identifier for product master", required = true)
@@ -122,5 +123,7 @@ public record ProductUpdateRequest(
         String remark,
         @Schema(description = "The price status, should be IN_USE during creation")
         @NotNull(message = "Price status should be set to IN_USE during creation")
-        ProductPriceStatus priceStatus
+        ProductPriceStatus priceStatus,
+        @Schema(description = "List of Images from the file upload API, remember the sequence is taken into consideration")
+        List<Image> images
 ) { }

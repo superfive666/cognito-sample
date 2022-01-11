@@ -5,4 +5,9 @@
         insert into file_upload (id, module, file_name, file_ext, author, created, status)
         values (#{id}, #{module}, #{fileName}, #{fileExt}, #{author}, current_timestamp, #{status})
     </insert>
+
+    <select id="getFileUploadByFileId" resultType="com.osakakuma.opms.common.entity.FileUpload">
+        select * from file_upload
+        where id = #{fileId}
+    </select>
 </mapper>

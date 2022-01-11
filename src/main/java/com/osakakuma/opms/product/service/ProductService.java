@@ -2,24 +2,25 @@ package com.osakakuma.opms.product.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.osakakuma.opms.common.entity.FileUpload;
+import com.osakakuma.opms.common.service.FileUploadService;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoRole;
 import com.osakakuma.opms.config.model.CognitoUser;
 import com.osakakuma.opms.product.dao.ProductAuxiliaryMapper;
 import com.osakakuma.opms.product.dao.ProductMapper;
 import com.osakakuma.opms.product.entity.*;
-import com.osakakuma.opms.product.model.ProductCreateRequest;
-import com.osakakuma.opms.product.model.ProductListRequest;
-import com.osakakuma.opms.product.model.ProductRecord;
-import com.osakakuma.opms.product.model.ProductUpdateRequest;
+import com.osakakuma.opms.product.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ import java.util.Optional;
 public class ProductService {
     private final ProductMapper productMapper;
     private final ProductAuxiliaryMapper productAuxiliaryMapper;
+    private final FileUploadService fileUploadService;
 
     @Transactional(readOnly = true, timeout = 60)
     public Boolean skuAvailable(String sku) {
@@ -39,7 +41,10 @@ public class ProductService {
     public ProductRecord getProductRecordDetails(CognitoUser user, String sku) {
         log.debug("User {} is retrieving product sku-{} details", user.username(), sku);
 
-        return maskSensitiveData(user, productMapper.getProductRecordBySku(sku));
+        var record = maskSensitiveData(user, productMapper.getProductRecordBySku(sku));
+        record.setImages(productMapper.getProductImages(sku));
+
+        return record;
     }
 
     @Transactional(readOnly = true, timeout = 60)
@@ -70,6 +75,8 @@ public class ProductService {
 
         var info = getProductInfo(request);
         productMapper.insertProductInfo(info);
+
+        updateImages(request.images(), request.sku());
 
         if (admin(user)) {
             var price = getProductPrice(request);
@@ -120,11 +127,15 @@ public class ProductService {
 
         updateProductMaster(user, master, request);
 
+        updateImages(request.images(), request.sku());
+
         var info = productMapper.getProductInfoBySku(request.sku());
         updateProductInfo(info, request);
 
-        var price = productMapper.getProductPriceBySku(request.sku());
-        updateProductPrice(price, request);
+        if (admin(user)) {
+            var price = productMapper.getProductPriceBySku(request.sku());
+            updateProductPrice(price, request);
+        }
 
         return request.sku();
     }
@@ -186,5 +197,41 @@ public class ProductService {
 
     private boolean admin(CognitoUser user) {
         return user.groups().contains(CognitoRole.ADMIN) || user.groups().contains(CognitoRole.SUPER_ADMIN);
+    }
+
+    private void updateImages(List<Image> images, String sku) {
+        if (CollectionUtils.isEmpty(images)) return;
+
+        productMapper.deleteProductImage(sku);
+
+        var i = 0;
+        for (Image image : images) {
+            var file = fileUploadService.getFileUploadByFileId(image.fileId());
+            productMapper.insertProductImage(mapFile(file, sku, i++, image));
+        }
+    }
+
+    private ProductImage mapFile(FileUpload fileUpload, String sku, int seq, Image image) {
+        return ProductImage.builder()
+                .sku(sku)
+                .fileId(fileUpload.getId())
+                .height(image.height())
+                .width(image.width())
+                .path(getFilePath(fileUpload))
+                .seq(seq)
+                .build();
+    }
+
+    private String getFilePath(FileUpload fileUpload) {
+        // base path is prefixed with "s3"
+        return "s3" + "/" +
+                // module name to separate the files
+                fileUpload.getModule() + "/" +
+                // username sub-path
+                fileUpload.getAuthor() + "/" +
+                // date string to prevent files with same name
+                fileUploadService.getDateString(fileUpload.getCreated()) + "/" +
+                // filename.file_ext
+                fileUpload.getFileName() + "." + fileUpload.getFileExt();
     }
 }

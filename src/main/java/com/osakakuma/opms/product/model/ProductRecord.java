@@ -1,6 +1,7 @@
 package com.osakakuma.opms.product.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.osakakuma.opms.product.entity.ProductImage;
 import com.osakakuma.opms.product.entity.ProductMasterStatus;
 import com.osakakuma.opms.product.entity.ProductPriceStatus;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Setter
@@ -54,4 +56,5 @@ public class ProductRecord {
     private BigDecimal grossMargin;
     private String remark;
     private ProductPriceStatus priceStatus;
+    private List<ProductImage> images;
 }

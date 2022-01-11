@@ -1,5 +1,6 @@
 package com.osakakuma.opms.product.dao;
 
+import com.osakakuma.opms.product.entity.ProductImage;
 import com.osakakuma.opms.product.entity.ProductInfo;
 import com.osakakuma.opms.product.entity.ProductMaster;
 import com.osakakuma.opms.product.entity.ProductPrice;
@@ -34,4 +35,10 @@ public interface ProductMapper {
     void updateProductInfo(ProductInfo info);
 
     void updateProductPrice(ProductPrice price);
+
+    List<ProductImage> getProductImages(String sku);
+
+    void deleteProductImage(String sku);
+
+    void insertProductImage(ProductImage image);
 }

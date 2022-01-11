@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface FileUploadMapper {
-
     void insertUploadFile(FileUpload fileUpload);
+
+    FileUpload getFileUploadByFileId(String fileId);
 }

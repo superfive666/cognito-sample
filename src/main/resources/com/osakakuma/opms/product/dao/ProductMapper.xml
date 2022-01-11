@@ -42,9 +42,41 @@
                  inner join product_price pp on pi.sku = pp.sku
         <where>
             and pm.status != 'REMOVED'
-            <if test="">
-
+            <if test="sku != null">
+                and pm.sku = #{sku}
             </if>
+            <if test="category != null">
+                and lower(pm.category) like '%' || #{category} || '%'
+            </if>
+            <if test="brand != null">
+                and lower(pm.brand) like '%' || #{brand} || '%'
+            </if>
+            <if test="name != null">
+                and (
+                    lower(pi.name_en) like '%' || #{name} || '%' or
+                    lower(pi.name_jp) like '%' || #{name} || '%' or
+                    lower(pi.name_zh) like '%' || #{name} || '%'
+                )
+            </if>
+            order by
+            <choose>
+                <when test="asc">
+                    <choose>
+                        <when test="order == 'SELL_PRICE'"> pp.sell_price </when>
+                        <when test="order == 'ORDER_PRICE'"> pp.order_price </when>
+                        <when test="order == 'GROSS_MARGIN'"> pp.gross_margin </when>
+                        <otherwise> coalesce(pm.updated, pm.created) </otherwise>
+                    </choose>
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="order == 'SELL_PRICE'"> pp.sell_price desc </when>
+                        <when test="order == 'ORDER_PRICE'"> pp.order_price desc </when>
+                        <when test="order == 'GROSS_MARGIN'"> pp.gross_margin desc </when>
+                        <otherwise> coalesce(pm.updated, pm.created) desc </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
         </where>
     </select>
 
@@ -116,4 +148,19 @@
             status = #{status}
         where sku = #{sku}
     </update>
+
+    <select id="getProductImages" resultType="com.osakakuma.opms.product.entity.ProductImage">
+        select * from product_image
+        where sku = #{sku}
+        order by seq
+    </select>
+
+    <delete id="deleteProductImage" >
+        delete from product_image where sku = #{sku}
+    </delete>
+
+    <insert id="insertProductImage">
+        insert into product_image (sku, file_id, height, width, path, seq)
+        values (#{sku}, #{fileId}, #{height}, #{width}, #{path}, #{seq})
+    </insert>
 </mapper>

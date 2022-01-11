@@ -23,8 +23,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -46,6 +47,10 @@ public class FileUploadService {
     @Value("#{@awsS3Config.bucket}")
     private String bucket;
 
+    public FileUpload getFileUploadByFileId(String fileId) {
+        return fileUploadMapper.getFileUploadByFileId(fileId);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public FileUploadResponse uploadFile(CognitoUser user, FileUploadRequest fileUpload, String domain) {
         return uploadToS3(user, fileUpload, domain);
@@ -66,7 +71,6 @@ public class FileUploadService {
         return id;
     }
 
-    @SneakyThrows(IOException.class)
     private FileUploadResponse uploadToS3(CognitoUser user, FileUploadRequest fileUpload, String domain) {
         var mime = validateFileUpload(fileUpload);
         var path = getFilePath(user, fileUpload);
@@ -133,8 +137,12 @@ public class FileUploadService {
                 request.fileName() + "." + request.fileExtension();
     }
 
+    public String getDateString(Instant instant) {
+        var format = DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.systemDefault());
+        return format.format(instant);
+    }
+
     private String getDateString() {
-        var format = new SimpleDateFormat("yyyyMMdd");
-        return format.format(Instant.now());
+        return getDateString(Instant.now());
     }
 }
