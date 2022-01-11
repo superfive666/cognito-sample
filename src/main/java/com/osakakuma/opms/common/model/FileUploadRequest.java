@@ -14,7 +14,7 @@ public record FileUploadRequest(
         String fileName,
         @Schema(description = "The extension of the file to be uploaded", required = true)
         @NotEmpty(message = "File extension is missing")
-        @Size(max = 6, message = "File extension exceeded maximum length of 6")
+        @Size(max = 4, message = "File extension exceeded maximum length of 4")
         String fileExtension,
         @Schema(description = "The module that the file is uploaded for", required = true)
         @NotNull(message = "Please specify the module (purpose) of the file uploaded")

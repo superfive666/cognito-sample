@@ -2,6 +2,7 @@ package com.osakakuma.opms.common.controller;
 
 import com.osakakuma.opms.common.model.BaseResponse;
 import com.osakakuma.opms.common.model.FileUploadRequest;
+import com.osakakuma.opms.common.model.FileUploadResponse;
 import com.osakakuma.opms.common.service.FileUploadService;
 import com.osakakuma.opms.config.model.CognitoUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,8 +28,8 @@ public class CommonController {
 
     @Operation(summary = "Upload File", description = "Upload a file to the server and obtain the fully qualified URL address for the uploaded file")
     @PostMapping(value = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<String>> uploadFile(CognitoUser user, HttpServletRequest httpServletRequest,
-                                                           @ModelAttribute @Valid FileUploadRequest fileUploadRequest) {
+    public ResponseEntity<BaseResponse<FileUploadResponse>> uploadFile(CognitoUser user, HttpServletRequest httpServletRequest,
+                                                                       @ModelAttribute @Valid FileUploadRequest fileUploadRequest) {
         var domain = httpServletRequest.getServerName();
 
         // return the fully qualified URL for the uploaded file
