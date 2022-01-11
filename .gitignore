@@ -34,3 +34,6 @@ build/
 
 ### Customized Log File ###
 logs
+
+### DS_Store file for mac ###
+**/.DS_Store
