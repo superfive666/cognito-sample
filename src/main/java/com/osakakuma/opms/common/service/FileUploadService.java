@@ -95,8 +95,8 @@ public class FileUploadService {
         try (var is = request.file().getInputStream()) {
             var tika = new Tika();
             var mime = tika.detect(is);
-            var expected = MIME_MAP.get(mime);
-            OpmsAssert.equalsIgnoreCase(expected, request.fileExtension(),
+            var expected = MIME_MAP.get(request.fileExtension());
+            OpmsAssert.equalsIgnoreCase(expected, mime,
                     () -> "File extension does not match the file actual content");
 
             return mime;
