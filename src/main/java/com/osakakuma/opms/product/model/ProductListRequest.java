@@ -1,10 +1,13 @@
 package com.osakakuma.opms.product.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springdoc.api.annotations.ParameterObject;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
+@ParameterObject
 public record ProductListRequest(
         @Schema(description = "page number starting with 1", required = true)
         @NotNull(message = "page number is missing")
@@ -25,5 +28,9 @@ public record ProductListRequest(
         @Schema(description = "Order column name")
         ProductMasterOrderColumn order,
         @Schema(description = "Ascending or descending", defaultValue = "false")
-        boolean asc
-) { }
+        Boolean asc
+) {
+        public ProductListRequest {
+                if (Objects.isNull(asc)) asc = Boolean.FALSE;
+        }
+}

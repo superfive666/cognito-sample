@@ -36,7 +36,8 @@ public class ProductController {
 
     @Operation(summary = "List Products", description = "List the products with pagination")
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BaseResponse<PageInfo<ProductRecord>>> listProductRecords(CognitoUser user, @Valid ProductListRequest request) {
+    public ResponseEntity<BaseResponse<PageInfo<ProductRecord>>> listProductRecords(CognitoUser user,
+                                                                                    @Valid ProductListRequest request) {
         return BaseResponse.success(productService.listProductMasterRecords(user, request));
     }
 
