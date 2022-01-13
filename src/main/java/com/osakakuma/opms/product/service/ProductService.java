@@ -52,10 +52,10 @@ public class ProductService {
     @Transactional(readOnly = true, timeout = 60)
     public PageInfo<ProductRecord> listProductMasterRecords(CognitoUser user, ProductListRequest request) {
         PageHelper.startPage(request.page(), request.pageSize());
-        var result = productMapper.listProductRecords(request)
-                .stream().map(r -> this.maskSensitiveData(user, r)).toList();
+        var page  = PageInfo.of(productMapper.listProductRecords(request));
+        page.setList(page.getList().stream().map(r -> this.maskSensitiveData(user, r)).toList());
 
-        return PageInfo.of(result);
+        return page;
     }
 
     private ProductRecord maskSensitiveData(CognitoUser user, ProductRecord record) {
