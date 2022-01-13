@@ -111,9 +111,12 @@
             hs_code_desc = #{hsCodeDesc},
             status = #{status},
             updated = current_timestamp,
-            updated_by = #{updatedBy},
-            approved = #{approved},
-            approved_by = #{approvedBy}
+            updated_by = #{updatedBy}
+            <if test="approved != null">
+                ,
+                approved = #{approved},
+                approved_by = #{approvedBy}
+            </if>
         where sku = #{sku}
     </update>
     
