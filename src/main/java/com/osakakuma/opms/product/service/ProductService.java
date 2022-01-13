@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -202,13 +203,21 @@ public class ProductService {
     }
 
     private void updateImages(List<Image> images, String sku) {
-        if (CollectionUtils.isEmpty(images)) return;
+        // if no parameter sent, do nothing
+        if (Objects.isNull(images)) return;
 
         productMapper.deleteProductImage(sku);
 
         var i = 0;
         for (Image image : images) {
-            var file = fileUploadService.getFileUploadByFileId(image.fileId());
+            var fileId = image.fileId();
+            var file = fileUploadService.getFileUploadByFileId(fileId);
+            OpmsAssert.isTrue(Objects.nonNull(file),
+                    () -> MessageFormat.format("""
+                            File id {0} not found in system, try upload the file to system again
+                            """,
+                            fileId));
+
             productMapper.insertProductImage(mapFile(file, sku, i++, image));
         }
     }
