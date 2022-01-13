@@ -28,6 +28,16 @@ public class BaseResponse<E> {
         return ResponseEntity.ok(body);
     }
 
+    public static ResponseEntity<BaseResponse<Void>> validationError(String message) {
+        var body = BaseResponse.<Void>builder()
+                .code(HttpStatus.BAD_REQUEST.value())
+                .status("validation_error")
+                .message(message)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     public static ResponseEntity<BaseResponse<Void>> unauthorized(String message) {
         var body = BaseResponse.<Void>builder()
                 .code(HttpStatus.FORBIDDEN.value())

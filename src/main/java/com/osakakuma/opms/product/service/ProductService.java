@@ -42,6 +42,8 @@ public class ProductService {
         log.debug("User {} is retrieving product sku-{} details", user.username(), sku);
 
         var record = maskSensitiveData(user, productMapper.getProductRecordBySku(sku));
+        OpmsAssert.isTrue(Objects.nonNull(record), () -> "Record not found with SKU " + sku);
+
         record.setImages(productMapper.getProductImages(sku));
 
         return record;
