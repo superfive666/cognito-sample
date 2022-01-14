@@ -109,6 +109,8 @@
             four_quadrant = #{fourQuadrant},
             hs_code = #{hsCode},
             hs_code_desc = #{hsCodeDesc},
+            specs = #{specs},
+            weight = #{weight},
             status = #{status},
             updated = current_timestamp,
             updated_by = #{updatedBy}
