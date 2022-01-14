@@ -14,6 +14,28 @@ comment on column message_i18n.val is 'The translated message content to be stor
 comment on column message_i18n.category is 'Message category for locating the translated text - required';
 grant select, insert, update, delete on message_i18n to opms_app_role;
 
+-- audit log table for all OPMS modules
+create table if not exists audit_log (
+    username character varying (30) not null,
+    log_time timestamp default current_timestamp not null,
+    log_action character varying (10) default 'CREATE' not null,
+    log_module character varying (10) default 'PRODUCT' not null,
+    log_title character varying (50) not null,
+    log_description character varying (200) not null,
+    val_before character varying (500),
+    val_after character varying (500)
+);
+comment on table audit_log is 'Audit log table for storing all OPMS backend module changes performed';
+comment on column audit_log.username is 'The AWS Cognito registered username';
+comment on column audit_log.log_time is 'The timestamp that the log entry is generated';
+comment on column audit_log.log_action is 'The log action enum type value such as CREATE, UPDATE, DELETE';
+comment on column audit_log.log_module is 'The logging module of the OPMS system, corresponding to the backend modules, such as PRODUCT, PRICE, INVENTORY, etc.';
+comment on column audit_log.log_title is 'The displayed log title translatable via message_i18n table (with parameterized content)';
+comment on column audit_log.log_description is 'The displayed long description text for the audit log, translatable via message_i18n table';
+comment on column audit_log.val_before is 'The before value, translatable via message_i18n table';
+comment on column audit_log.val_after is 'The after value, translatable via message_i18n table';
+grant select, insert, update, delete on audit_log to opms_app_role;
+
 -- product module master table
 create table if not exists product_master (
     sku character varying(20) primary key,

@@ -1,5 +1,6 @@
 package com.osakakuma.opms.common.util;
 
+import com.osakakuma.opms.config.model.CognitoRole;
 import com.osakakuma.opms.config.model.CognitoUser;
 import com.osakakuma.opms.error.OpmsUnauthorizedException;
 import com.osakakuma.opms.error.OpmsValidationException;
@@ -35,5 +36,10 @@ public class OpmsAssert {
         if (Objects.isNull(obj)) {
             throw new OpmsUnauthorizedException(message.get());
         }
+    }
+
+    public static void isAdmin(CognitoUser user, String action) {
+        authorize(user.groups().contains(CognitoRole.ADMIN) || user.groups().contains(CognitoRole.SUPER_ADMIN),
+                () -> "Only admin can is allowed to perform " + action);
     }
 }

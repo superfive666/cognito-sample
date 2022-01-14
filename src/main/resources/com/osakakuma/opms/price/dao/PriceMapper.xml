@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osakakuma.opms.price.dao.PriceMapper">
+    <select id="listPrice" resultType="com.osakakuma.opms.product.entity.ProductPrice">
+        select pp.*
+        from product_master pm
+            inner join product_info pi on pm.sku = pi.sku
+            inner join product_price pp on pi.sku = pp.sku
+        <where>
+            and pm.status != 'REMOVED'
+            <if test="sku != null">
+                and pm.sku = #{sku}
+            </if>
+            <if test="category != null">
+                and lower(pm.category) like '%' || #{category} || '%'
+            </if>
+            <if test="brand != null">
+                and lower(pm.brand) like '%' || #{brand} || '%'
+            </if>
+            <if test="name != null">
+                and (
+                lower(pi.name_en) like '%' || #{name} || '%' or
+                lower(pi.name_jp) like '%' || #{name} || '%' or
+                lower(pi.name_zh) like '%' || #{name} || '%'
+                )
+            </if>
+            order by
+            <choose>
+                <when test="asc">
+                    <choose>
+                        <when test="order == 'SELL_PRICE'"> pp.sell_price </when>
+                        <when test="order == 'ORDER_PRICE'"> pp.order_price </when>
+                        <when test="order == 'GROSS_MARGIN'"> pp.gross_margin </when>
+                        <otherwise> coalesce(pm.updated, pm.created) </otherwise>
+                    </choose>
+                </when>
+                <otherwise>
+                    <choose>
+                        <when test="order == 'SELL_PRICE'"> pp.sell_price desc </when>
+                        <when test="order == 'ORDER_PRICE'"> pp.order_price desc </when>
+                        <when test="order == 'GROSS_MARGIN'"> pp.gross_margin desc </when>
+                        <otherwise> coalesce(pm.updated, pm.created) desc </otherwise>
+                    </choose>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+</mapper>
