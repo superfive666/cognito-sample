@@ -36,8 +36,8 @@ comment on column audit_log.val_before is 'The before value, translatable via me
 comment on column audit_log.val_after is 'The after value, translatable via message_i18n table';
 grant select, insert, update, delete on audit_log to opms_app_role;
 
-create index idx_audit_log_username on audit_log (username);
-create index idx_audit_log_time on audit_log (log_time);
+create index if not exists idx_audit_log_username on audit_log (username);
+create index if not exists idx_audit_log_time on audit_log (log_time);
 
 -- product module master table
 create table if not exists product_master (
