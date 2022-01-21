@@ -26,6 +26,7 @@ public class ProductInfo {
     private String ingredientZh;
     private String originEn;
     private String originJp;
+    private String originZh;
     private String manufacturerAddrEn;
     private String manufacturerAddrJp;
     private String manufacturerAddrZh;

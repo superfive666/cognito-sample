@@ -100,6 +100,9 @@ public record ProductUpdateRequest(
         @Schema(description = "The product origin in Japanese")
         @Size(max = 20, message = "Maximum length for product origin is 20")
         String originJp,
+        @Schema(description = "The product origin in Chinese")
+        @Size(max = 20, message = "Maximum length for product origin is 20")
+        String originZh,
         @Schema(description = "The manufacturer address in English")
         @Size(max = 200, message = "Maximum length for manufacturer address is 200")
         String manufacturerAddrEn,
@@ -125,5 +128,7 @@ public record ProductUpdateRequest(
         @NotNull(message = "Price status should be set to IN_USE during creation")
         ProductPriceStatus priceStatus,
         @Schema(description = "List of Images from the file upload API, remember the sequence is taken into consideration")
-        List<Image> images
+        List<Image> images,
+        @Schema(description = "List of external product URLs of the product")
+        List<Url> urls
 ) { }

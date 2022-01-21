@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.osakakuma.opms.product.entity.ProductImage;
 import com.osakakuma.opms.product.entity.ProductMasterStatus;
 import com.osakakuma.opms.product.entity.ProductPriceStatus;
+import com.osakakuma.opms.product.entity.ProductUrl;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,6 +49,7 @@ public class ProductRecord {
     private String ingredientZh;
     private String originEn;
     private String originJp;
+    private String originZh;
     private String manufacturerAddrEn;
     private String manufacturerAddrJp;
     private String manufacturerAddrZh;
@@ -57,4 +59,5 @@ public class ProductRecord {
     private String remark;
     private ProductPriceStatus priceStatus;
     private List<ProductImage> images;
+    private List<ProductUrl> urls;
 }

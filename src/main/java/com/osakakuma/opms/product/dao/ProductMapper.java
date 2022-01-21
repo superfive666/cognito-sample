@@ -41,4 +41,6 @@ public interface ProductMapper {
     void deleteProductImage(String sku);
 
     void insertProductImage(ProductImage image);
+
+
 }

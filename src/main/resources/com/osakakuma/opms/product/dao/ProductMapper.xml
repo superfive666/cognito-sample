@@ -20,8 +20,9 @@
                pi.name_en, pi.name_jp, pi.name_zh, pi.function_en, pi.function_jp, pi.function_zh,
                pi.instruction_en, pi.instruction_jp, pi.instruction_zh, pi.caution_en, pi.caution_jp,
                pi.caution_zh, pi.ingredient_en, pi.ingredient_jp, pi.ingredient_zh, pi.origin_en,
-               pi.origin_jp, pi.manufacturer_addr_en, pi.manufacturer_addr_jp, pi.manufacturer_addr_zh,
-               pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark, pp.status as price_status
+               pi.origin_jp, pi.origin_zh, pi.manufacturer_addr_en, pi.manufacturer_addr_jp,
+               pi.manufacturer_addr_zh, pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark,
+               pp.status as price_status
         from product_master pm
                  inner join product_info pi on pm.sku = pi.sku
                  inner join product_price pp on pi.sku = pp.sku
@@ -35,8 +36,9 @@
                pi.name_en, pi.name_jp, pi.name_zh, pi.function_en, pi.function_jp, pi.function_zh,
                pi.instruction_en, pi.instruction_jp, pi.instruction_zh, pi.caution_en, pi.caution_jp,
                pi.caution_zh, pi.ingredient_en, pi.ingredient_jp, pi.ingredient_zh, pi.origin_en,
-               pi.origin_jp, pi.manufacturer_addr_en, pi.manufacturer_addr_jp, pi.manufacturer_addr_zh,
-               pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark, pp.status as price_status
+               pi.origin_jp, pi.origin_zh, pi.manufacturer_addr_en, pi.manufacturer_addr_jp,
+               pi.manufacturer_addr_zh, pp.sell_price, pp.cost_price, pp.gross_margin, pp.remark,
+               pp.status as price_status
         from product_master pm
                  inner join product_info pi on pm.sku = pi.sku
                  inner join product_price pp on pi.sku = pp.sku
@@ -88,12 +90,12 @@
     <insert id="insertProductInfo">
         insert into product_info(sku, name_en, name_jp, name_zh, function_en, function_jp, function_zh, instruction_en,
                                  instruction_jp, instruction_zh, caution_en, caution_jp, caution_zh, ingredient_en,
-                                 ingredient_jp, ingredient_zh, origin_en, origin_jp, manufacturer_addr_en,
+                                 ingredient_jp, ingredient_zh, origin_en, origin_jp, origin_zh, manufacturer_addr_en,
                                  manufacturer_addr_jp, manufacturer_addr_zh)
         values (#{sku}, #{nameEn}, #{nameJp}, #{nameZh}, #{functionEn}, #{functionJp}, #{functionZh}, #{instructionEn},
                 #{instructionJp}, #{instructionZh}, #{cautionEn}, #{cautionJp}, #{cautionZh}, #{ingredientEn},
-                #{ingredientJp}, #{ingredientZh}, #{originEn}, #{originJp}, #{manufacturerAddrEn}, #{manufacturerAddrJp},
-                #{manufacturerAddrZh})
+                #{ingredientJp}, #{ingredientZh}, #{originEn}, #{originJp}, #{originZh}, #{manufacturerAddrEn},
+                #{manufacturerAddrJp}, #{manufacturerAddrZh})
     </insert>
 
     <insert id="insertProductPrice">
@@ -138,6 +140,7 @@
             ingredient_zh = #{ingredientZh},
             origin_en = #{originEn},
             origin_jp = #{originJp},
+            origin_zh = #{originZh},
             manufacturer_addr_en = #{manufacturerAddrEn},
             manufacturer_addr_jp = #{manufacturerAddrJp},
             manufacturer_addr_zh = #{manufacturerAddrZh}

@@ -1,5 +1,6 @@
 set search_path = opms;
 -- message template
+drop table if exists message_i18n;
 create table if not exists message_i18n (
     locale character varying (2),
     key character varying (100),
@@ -15,6 +16,7 @@ comment on column message_i18n.category is 'Message category for locating the tr
 grant select, insert, update, delete on message_i18n to opms_app_role;
 
 -- audit log table for all OPMS modules
+drop table if exists audit_log;
 create table if not exists audit_log (
     username character varying (30) not null,
     log_time timestamp default current_timestamp not null,
@@ -40,6 +42,7 @@ create index if not exists idx_audit_log_username on audit_log (username);
 create index if not exists idx_audit_log_time on audit_log (log_time);
 
 -- product module master table
+drop table if exists product_master cascade;
 create table if not exists product_master (
     sku character varying(20) primary key,
     category character varying(30) not null,
@@ -70,6 +73,7 @@ comment on column product_master.specs is 'Free text field for describing the pr
 comment on column product_master.weight is 'Numeric information relating to product weights with maximum 3 decimal points';
 grant select, insert, update, delete on product_master to opms_app_role;
 
+drop table if exists product_info;
 create table if not exists product_info (
     sku character varying(20) primary key,
     name_en character varying(300),
@@ -89,6 +93,7 @@ create table if not exists product_info (
     ingredient_zh character varying(5000),
     origin_en character varying(20),
     origin_jp character varying(20),
+    origin_zh character varying(20),
     manufacturer_addr_en character varying(200),
     manufacturer_addr_jp character varying(200),
     manufacturer_addr_zh character varying(200)
@@ -97,6 +102,7 @@ comment on table product_info is 'Product related rich-text information, all fie
 comment on column product_info.sku is 'Product globally unique identifier';
 grant select, insert, update, delete on product_info to opms_app_role;
 
+drop table if exists product_price;
 create table if not exists product_price (
     sku character varying(20) primary key,
     sell_price money not null,
@@ -117,7 +123,24 @@ create index if not exists idx_sell_price on product_price (sell_price);
 create index if not exists idx_cost_price on product_price (cost_price);
 create index if not exists idx_gross_margin on product_price (gross_margin);
 
+-- Product URL (on various existing platforms)
+drop table if exists product_url;
+create table if not exists product_url (
+    sku character varying (20),
+    platform character varying (20) not null,
+    url character varying (500) not null,
+    constraint fk_product_url foreign key (sku)
+    references product_master(sku)
+    on delete cascade
+);
+comment on table product_url is 'Product URL listed on various external e-commerce platforms';
+comment on column product_url.sku is 'Foreign key referencing product_master (sku) key';
+comment on column product_url.platform is 'Enum value of ProductPlatform, ex. SHOPEE';
+comment on column product_url.url is 'Fully qualified web URL that links to the product main page';
+grant select, insert, update, delete on product_url to opms_app_role;
+
 -- File upload common table
+drop table if exists file_upload;
 create table if not exists file_upload (
     id character varying (36) primary key,
     module character varying (10) not null,
@@ -142,6 +165,7 @@ grant select, insert, update, delete on file_upload to opms_app_role;
 create index if not exists idx_file_author on file_upload(author);
 
 -- Product Master Images Management
+drop table if exists product_image;
 create table if not exists product_image (
     sku character varying (20),
     file_id character varying (36),
