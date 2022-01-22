@@ -45,6 +45,7 @@ public class ProductService {
         OpmsAssert.isTrue(Objects.nonNull(record), () -> "Record not found with SKU " + sku);
 
         record.setImages(productMapper.getProductImages(sku));
+        record.setUrls(productMapper.getProductUrls(sku));
 
         return record;
     }
@@ -79,6 +80,7 @@ public class ProductService {
         productMapper.insertProductInfo(info);
 
         updateImages(request.images(), request.sku());
+        updateUrls(request.urls(), request.sku());
 
         if (admin(user)) {
             var price = getProductPrice(request);
@@ -201,6 +203,17 @@ public class ProductService {
         return user.groups().contains(CognitoRole.ADMIN) || user.groups().contains(CognitoRole.SUPER_ADMIN);
     }
 
+    private void updateUrls(List<Url> urls, String sku) {
+        // if no url provided, do nothing
+        if (Objects.isNull(urls)) return;
+
+        // delete existing url to prepare for updates
+        productMapper.deleteProductUrl(sku);
+
+        // insert the latest url values regardless if there are updates or not
+        urls.stream().map(u -> mapUrl(u, sku)).forEach(productMapper::insertProductUrl);
+    }
+
     private void updateImages(List<Image> images, String sku) {
         // if no parameter sent, do nothing
         if (Objects.isNull(images)) return;
@@ -219,6 +232,14 @@ public class ProductService {
 
             productMapper.insertProductImage(mapFile(file, sku, i++, image));
         }
+    }
+
+    private ProductUrl mapUrl(Url url, String sku) {
+        return ProductUrl.builder()
+                .sku(sku)
+                .platform(url.platform())
+                .url(url.url())
+                .build();
     }
 
     private ProductImage mapFile(FileUpload fileUpload, String sku, int seq, Image image) {

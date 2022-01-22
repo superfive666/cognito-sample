@@ -171,4 +171,20 @@
         insert into product_image (sku, file_id, height, width, path, seq)
         values (#{sku}, #{fileId}, #{height}, #{width}, #{path}, #{seq})
     </insert>
+    
+    <select id="getProductUrls" resultType="com.osakakuma.opms.product.entity.ProductUrl">
+        select *
+        from product_url
+        where sku = #{sku}
+    </select>
+
+    <delete id="deleteProductUrl" >
+        delete from product_url
+        where sku = #{sku}
+    </delete>
+
+    <insert id="insertProductUrl" >
+        insert into product_url (sku, platform, url)
+        values (#{sku}, #{platform}, #{url})
+    </insert>
 </mapper>

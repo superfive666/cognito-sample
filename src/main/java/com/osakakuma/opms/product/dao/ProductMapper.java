@@ -1,6 +1,7 @@
 package com.osakakuma.opms.product.dao;
 
 import com.osakakuma.opms.product.entity.ProductImage;
+import com.osakakuma.opms.product.entity.ProductUrl;
 import com.osakakuma.opms.product.entity.ProductInfo;
 import com.osakakuma.opms.product.entity.ProductMaster;
 import com.osakakuma.opms.product.entity.ProductPrice;
@@ -42,5 +43,9 @@ public interface ProductMapper {
 
     void insertProductImage(ProductImage image);
 
+    List<ProductUrl> getProductUrls(String sku);
 
+    void deleteProductUrl(String sku);
+
+    void insertProductUrl(ProductUrl url);
 }
