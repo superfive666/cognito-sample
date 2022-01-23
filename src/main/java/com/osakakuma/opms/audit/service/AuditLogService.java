@@ -2,33 +2,46 @@ package com.osakakuma.opms.audit.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.osakakuma.opms.audit.dao.AuditLogMapper;
 import com.osakakuma.opms.audit.entity.AuditLog;
 import com.osakakuma.opms.audit.model.AuditLogListRequest;
 import com.osakakuma.opms.audit.model.AuditLogRecord;
-import com.osakakuma.opms.common.service.MessageService;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
 public class AuditLogService {
-    private final MessageService messageService;
+    private final MessageSourceAccessor messageSourceAccessor;
+    private final AuditLogMapper auditLogMapper;
 
     public PageInfo<AuditLogRecord> searchAuditLogs(CognitoUser user, AuditLogListRequest request) {
         OpmsAssert.isAdmin(user, "[view audit logs]");
 
         PageHelper.startPage(request.page(), request.pageSize());
+        var page = PageInfo.of(auditLogMapper.searchAuditLogs(request));
+        var list = page.getList().stream().map(this::mapRecord).toList();
+        var result = PageInfo.of(list);
+        BeanUtils.copyProperties(page, result);
 
-
-        return PageInfo.of(new ArrayList<>());
+        return result;
     }
 
     private AuditLogRecord mapRecord(AuditLog log) {
-
-        return null;
+        return new AuditLogRecord(
+                log.getUsername(),
+                log.getLogTime(),
+                log.getLogAction(),
+                log.getLogModule(),
+                // direct translation of messages from logged content
+                messageSourceAccessor.getMessage(log.getLogTitle()),
+                messageSourceAccessor.getMessage(log.getLogDescription()),
+                messageSourceAccessor.getMessage(log.getValBefore()),
+                messageSourceAccessor.getMessage(log.getValAfter())
+        );
     }
 }

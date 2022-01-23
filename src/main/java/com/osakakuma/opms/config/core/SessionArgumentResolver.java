@@ -17,7 +17,7 @@ public class SessionArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         var user = (CognitoUser) webRequest.getAttribute(SessionInterceptor.SESSION_USER, RequestAttributes.SCOPE_REQUEST);
         OpmsAssert.authorize(user);
 

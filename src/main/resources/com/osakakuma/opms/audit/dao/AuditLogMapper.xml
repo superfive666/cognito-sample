@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.osakakuma.opms.audit.dao.AuditLogMapper">
-    
+    <select id="searchAuditLogs" resultType="com.osakakuma.opms.audit.entity.AuditLog">
+        select al.*
+        from audit_log al
+        where al.log_time between #{begin} and #{end}
+        <if test="username != null">
+            and al.username like '%' || #{username} ||  '%'
+        </if>
+        <if test="actions != null and actions.size() > 0">
+            and al.log_action in
+            <foreach collection="actions" item="action" open="(" close=")" separator=",">#{action}</foreach>
+        </if>
+        <if test="modules != null and modules.size() > 0">
+            and al.log_module in
+            <foreach collection="modules" item="module" open="(" close=")" separator=",">#{module}</foreach>
+        </if>
+        order by al.log_time desc
+    </select>
 </mapper>

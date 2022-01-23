@@ -1,5 +1,5 @@
 package com.osakakuma.opms.audit.entity;
 
 public enum LogModule {
-    PRODUCT, PRICE, INVENTORY, APP
+    PRODUCT, PRICE, INVENTORY, APP, AUDIT
 }

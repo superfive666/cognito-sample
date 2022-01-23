@@ -22,7 +22,7 @@ public class SessionInterceptor implements HandlerInterceptor {
     private final Map<String, CognitoUser> cache = new ConcurrentHashMap<>(133);
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (request.getServletPath().contains("swagger")) {
             // exclude swagger page from checking
             return Boolean.TRUE;
