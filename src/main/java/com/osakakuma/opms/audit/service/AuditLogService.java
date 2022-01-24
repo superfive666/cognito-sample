@@ -14,6 +14,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuditLogService {
@@ -28,6 +30,7 @@ public class AuditLogService {
         var list = page.getList().stream().map(this::mapRecord).toList();
         var result = PageInfo.of(list);
         BeanUtils.copyProperties(page, result);
+        result.setList(list);
 
         return result;
     }
@@ -37,12 +40,12 @@ public class AuditLogService {
                 log.getUsername(),
                 log.getLogTime(),
                 // direct translation of messages from logged content
-                messageSourceAccessor.getMessage(log.getLogAction().name() + LogBox.LOG_ACTION_SUFFIX),
-                messageSourceAccessor.getMessage(log.getLogModule().name() + LogBox.LOG_MODULE_SUFFIX),
+                messageSourceAccessor.getMessage("#" + log.getLogAction().name() + LogBox.LOG_ACTION_SUFFIX),
+                messageSourceAccessor.getMessage("#" + log.getLogModule().name() + LogBox.LOG_MODULE_SUFFIX),
                 messageSourceAccessor.getMessage(log.getLogTitle()),
                 messageSourceAccessor.getMessage(log.getLogDescription()),
-                messageSourceAccessor.getMessage(log.getValBefore()),
-                messageSourceAccessor.getMessage(log.getValAfter())
+                Optional.ofNullable(log.getValBefore()).map(messageSourceAccessor::getMessage).orElse(null),
+                Optional.ofNullable(log.getValAfter()).map(messageSourceAccessor::getMessage).orElse(null)
         );
     }
 }

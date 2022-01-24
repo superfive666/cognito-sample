@@ -4,7 +4,7 @@
     <select id="searchAuditLogs" resultType="com.osakakuma.opms.audit.entity.AuditLog">
         select al.*
         from audit_log al
-        where al.log_time between #{begin} and #{end}
+        where al.log_time between to_timestamp(#{begin}/1000) and to_timestamp(#{end}/1000)
         <if test="username != null">
             and al.username like '%' || #{username} ||  '%'
         </if>

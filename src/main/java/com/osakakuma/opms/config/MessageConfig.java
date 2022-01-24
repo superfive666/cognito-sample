@@ -7,8 +7,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractMessageSource;
+import org.springframework.context.support.DelegatingMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,13 +29,12 @@ public class MessageConfig {
 
     @PostConstruct
     public void setupParentSource() {
-        if (messageSource instanceof ResourceBundleMessageSource) {
-            ((ResourceBundleMessageSource) messageSource).setParentMessageSource(messageSource);
+        if (messageSource instanceof DelegatingMessageSource) {
+            ((DelegatingMessageSource) messageSource).setParentMessageSource(jdbcMessageSource());
         }
     }
 
-    @Bean
-    public MessageSource jdbcMessageSource() {
+    private MessageSource jdbcMessageSource() {
         return new JdbcMessageSource(jdbcTemplate);
     }
 
@@ -56,6 +55,8 @@ public class MessageConfig {
         }
 
         private String resolve(String code, Locale locale) {
+            if (StringUtils.isEmpty(code)) return StringUtils.EMPTY;
+
             var raw = code.split("\\|");
             if (raw.length > 1) {
                 // contain argument
@@ -90,7 +91,7 @@ public class MessageConfig {
             OpmsAssert.isTrue(code.contains("@"), () -> "Invalid JDBC message lookup format");
 
             var args = code.split("@");
-            var loc = locale.toLanguageTag();
+            var loc = locale.getLanguage();
             OpmsAssert.isTrue(args.length == 2, () -> "JDBC message lookup code incorrect number of arguments");
 
             var sql = """
@@ -98,7 +99,7 @@ public class MessageConfig {
                 from message_i18n
                 where key = ? and category = ? and locale = ?
             """;
-            var message = jdbcTemplate.queryForObject(sql, String.class, args[0], args[1], loc);
+            var message = jdbcTemplate.queryForObject(sql, String.class, args[0].substring(1), args[1], loc);
 
             OpmsAssert.isTrue(StringUtils.isNotEmpty(message), () ->
                     MessageFormat.format("No message found for key {0}, category {1} under locale {2}",
