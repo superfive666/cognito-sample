@@ -12,9 +12,9 @@ public record AuditLogRecord(
         @Schema(description = "The audit log entry timestamp", required = true)
         Instant logTime,
         @Schema(description = "The audit log action performed", required = true)
-        LogAction logAction,
+        String logAction,
         @Schema(description = "The audit log module that belongs to", required = true)
-        LogModule logModule,
+        String logModule,
         @Schema(description = "The translated display audit log title", required = true)
         String logTitle,
         @Schema(description = "The translated display audit log description", required = true)

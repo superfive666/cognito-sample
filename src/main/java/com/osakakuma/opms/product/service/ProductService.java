@@ -3,7 +3,9 @@ package com.osakakuma.opms.product.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.osakakuma.opms.common.entity.FileUpload;
+import com.osakakuma.opms.common.entity.LogModule;
 import com.osakakuma.opms.common.service.FileUploadService;
+import com.osakakuma.opms.common.util.LogBox;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoRole;
 import com.osakakuma.opms.config.model.CognitoUser;
@@ -14,15 +16,15 @@ import com.osakakuma.opms.product.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,6 +33,8 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductAuxiliaryMapper productAuxiliaryMapper;
     private final FileUploadService fileUploadService;
+    private final JdbcTemplate jdbcTemplate;
+    private final PlatformTransactionManager platformTransactionManager;
 
     @Transactional(readOnly = true, timeout = 60)
     public Boolean skuAvailable(String sku) {
@@ -86,6 +90,12 @@ public class ProductService {
             var price = getProductPrice(request);
             productMapper.insertProductPrice(price);
         }
+
+        // generate create product master record audit log
+        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
+        box.log("product.create", Collections.singletonList(request.sku()), null,
+                Collections.singleton(request.sku()));
+        box.commit();
 
         return request.sku();
     }
@@ -181,6 +191,13 @@ public class ProductService {
         master.setApprovedBy(user.username());
         master.setStatus(ProductMasterStatus.APPROVED);
 
+        // Logging of approving the product. Product that is already approved will be rejected by this function
+        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
+        box.log("product.approve", Collections.singletonList(sku),
+                Collections.singletonList("#product.status.pending@general"),
+                Collections.singletonList("#product.status.approve@general"));
+        box.commit();
+
         return sku;
     }
 
@@ -195,6 +212,11 @@ public class ProductService {
 
         // update the status as REMOVED and set the current updated timestamp
         productMapper.updateProductMaster(master);
+
+        // log product soft deletion in DB
+        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
+        box.log("product.delete", Collections.singletonList(sku), Collections.singletonList(sku), null);
+        box.commit();
 
         return sku;
     }

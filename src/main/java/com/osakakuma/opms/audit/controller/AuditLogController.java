@@ -1,7 +1,6 @@
 package com.osakakuma.opms.audit.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.osakakuma.opms.audit.entity.AuditLog;
 import com.osakakuma.opms.audit.model.AuditLogListRequest;
 import com.osakakuma.opms.audit.model.AuditLogRecord;
 import com.osakakuma.opms.audit.service.AuditLogService;

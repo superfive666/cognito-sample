@@ -6,6 +6,7 @@ import com.osakakuma.opms.audit.dao.AuditLogMapper;
 import com.osakakuma.opms.audit.entity.AuditLog;
 import com.osakakuma.opms.audit.model.AuditLogListRequest;
 import com.osakakuma.opms.audit.model.AuditLogRecord;
+import com.osakakuma.opms.common.util.LogBox;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoUser;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +36,9 @@ public class AuditLogService {
         return new AuditLogRecord(
                 log.getUsername(),
                 log.getLogTime(),
-                log.getLogAction(),
-                log.getLogModule(),
                 // direct translation of messages from logged content
+                messageSourceAccessor.getMessage(log.getLogAction().name() + LogBox.LOG_ACTION_SUFFIX),
+                messageSourceAccessor.getMessage(log.getLogModule().name() + LogBox.LOG_MODULE_SUFFIX),
                 messageSourceAccessor.getMessage(log.getLogTitle()),
                 messageSourceAccessor.getMessage(log.getLogDescription()),
                 messageSourceAccessor.getMessage(log.getValBefore()),

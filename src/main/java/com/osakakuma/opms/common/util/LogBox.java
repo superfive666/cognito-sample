@@ -4,25 +4,26 @@ import com.osakakuma.opms.common.entity.AuditLog;
 import com.osakakuma.opms.common.entity.LogAction;
 import com.osakakuma.opms.common.entity.LogModule;
 import com.osakakuma.opms.config.model.CognitoUser;
-
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.utils.StringUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class LogBox {
     private static final TransactionDefinition DEFAULT_TRANSACTION_DEFINITION = new DefaultTransactionDefinition();
     public static final String LOG_TITLE_SUFFIX = "@logTitle";
     public static final String LOG_DESCRIPTION_SUFFIX = "@logDescription";
+    public static final String LOG_CONTENT_SUFFIX = "@logContent";
+    public static final String LOG_ACTION_SUFFIX = "@logAction";
+    public static final String LOG_MODULE_SUFFIX = "@logModule";
 
     private final JdbcTemplate jdbcTemplate;
     private final PlatformTransactionManager platformTransactionManager;
@@ -31,6 +32,33 @@ public class LogBox {
 
     // storing logs to be batched inserted into the database
     private final List<AuditLog> logs = new ArrayList<>(10);
+
+    /**
+     * This is a shortcut method that creates a log entry with title, description, value with the same category suffix.
+     *
+     * @param key Common key for all title, description, content
+     * @param desc The list of arguments for description text
+     * @param before List of arguments for before value (null if not exists)
+     * @param after List of arguments for after value (null if not exists)
+     */
+    public void log (String key, Collection<String> desc, Collection<String> before, Collection<String> after) {
+        var title = "#" + key + LOG_TITLE_SUFFIX;
+        var description = "#" + key + LOG_DESCRIPTION_SUFFIX + getArgString(desc);
+        var valBefore = "#" + Optional.ofNullable(before)
+                .map(b -> key + LOG_CONTENT_SUFFIX + getArgString(b))
+                .orElse(null);
+        var valAfter = "#" + Optional.ofNullable(after)
+                .map(a -> key + LOG_CONTENT_SUFFIX + getArgString(a))
+                .orElse(null);
+
+        log(title, description, valBefore, valAfter);
+    }
+
+    private String getArgString(Collection<String> args) {
+        if (CollectionUtils.isEmpty(args)) return StringUtils.EMPTY;
+
+        return "|" + String.join(";", args);
+    }
 
     /**
      * Log relevant audit logs into the database.
