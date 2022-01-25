@@ -103,6 +103,9 @@ public class LogBox {
      * After commit is invoked the in-memory persisted logs will be cleared for next step logging if any
      */
     public void commit () {
+        // if there is no logs, nothing to commit
+        if (CollectionUtils.isEmpty(logs)) return;
+
         var transaction = platformTransactionManager.getTransaction(DEFAULT_TRANSACTION_DEFINITION);
         var sql = """
                 insert into audit_log (username, log_time, log_action, log_module, log_title, log_description, val_before, val_after)

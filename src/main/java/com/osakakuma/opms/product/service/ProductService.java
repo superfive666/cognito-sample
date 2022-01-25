@@ -83,16 +83,17 @@ public class ProductService {
         var info = getProductInfo(request);
         productMapper.insertProductInfo(info);
 
+        // generate create product master record audit log
+        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
+
         updateImages(request.images(), request.sku());
-        updateUrls(request.urls(), request.sku());
+        updateUrls(request.urls(), request.sku(), box);
 
         if (admin(user)) {
             var price = getProductPrice(request);
             productMapper.insertProductPrice(price);
         }
 
-        // generate create product master record audit log
-        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
         box.log("product.create", Collections.singletonList(request.sku()), null,
                 Collections.singleton(request.sku()));
         box.commit();
@@ -139,25 +140,34 @@ public class ProductService {
         var master = productMapper.getProductMasterBySku(request.sku());
         OpmsAssert.isTrue(Objects.nonNull(master), () -> "Product not exists or already deleted");
 
-        updateProductMaster(user, master, request);
+        // create logging box for module update
+        var box = new LogBox(jdbcTemplate, platformTransactionManager, user, LogModule.PRODUCT);
+
+        updateProductMaster(user, master, request, box);
 
         updateImages(request.images(), request.sku());
+        updateUrls(request.urls(), request.sku(), box);
 
         var info = productMapper.getProductInfoBySku(request.sku());
         updateProductInfo(info, request);
 
         if (admin(user)) {
             var price = productMapper.getProductPriceBySku(request.sku());
-            updateProductPrice(price, request);
+            updateProductPrice(price, request, box);
         }
 
+        // commit logs if no exception noted during update
+        box.commit();
         return request.sku();
     }
 
-    private void updateProductMaster(CognitoUser user, ProductMaster master, ProductUpdateRequest request) {
+    private void updateProductMaster(CognitoUser user, ProductMaster master, ProductUpdateRequest request, LogBox box) {
         OpmsAssert.isTrue(ProductMasterStatus.DRAFT.equals(request.status()) ||
                         ProductMasterStatus.PENDING.equals(request.status()),
                 () -> "Invalid product status during update");
+
+        // before updating product master, log the changes if any
+        compareProductMaster(master, request, box);
 
         BeanUtils.copyProperties(request, master);
         master.setUpdated(Instant.now());
@@ -165,17 +175,41 @@ public class ProductService {
         productMapper.updateProductMaster(master);
     }
 
+    private void compareProductMaster(ProductMaster master, ProductUpdateRequest request, LogBox box) {
+        var sku = request.sku();
+        logChange(box, "category", sku, master.getCategory(), request.category());
+        logChange(box, "sub-category", sku, master.getSubCategory(), request.subCategory());
+        logChange(box, "brand", sku, master.getBrand(), request.brand());
+        logChange(box, "four-quadrant", sku, master.getFourQuadrant(), request.fourQuadrant());
+        logChange(box, "hs-code", sku, master.getHsCode(), request.hsCode());
+        logChange(box, "specs", sku, master.getSpecs(), request.specs());
+        logChange(box, "weight", sku, master.getWeight(), request.weight());
+        logChange(box, "status", sku, master.getStatus(), request.status());
+    }
+
     private void updateProductInfo(ProductInfo info, ProductUpdateRequest request) {
         BeanUtils.copyProperties(request, info);
         productMapper.updateProductInfo(info);
     }
 
-    private void updateProductPrice(ProductPrice price, ProductUpdateRequest request) {
+    private void updateProductPrice(ProductPrice price, ProductUpdateRequest request, LogBox box) {
+        // compare price before making changes to existing object
+        compareProductPrice(price, request, box);
+
         BeanUtils.copyProperties(request, price);
         price.setSellPrice(Optional.ofNullable(request.sellPrice()).orElse(BigDecimal.ZERO));
         price.setCostPrice(Optional.ofNullable(request.costPrice()).orElse(BigDecimal.ZERO));
         price.setGrossMargin(Optional.ofNullable(request.grossMargin()).orElse(BigDecimal.ZERO));
         price.setStatus(request.priceStatus());
+    }
+
+    private void compareProductPrice(ProductPrice price, ProductUpdateRequest request, LogBox box) {
+        var sku = request.sku();
+        logChange(box, "sell-price", sku, price.getSellPrice(), request.sellPrice());
+        logChange(box, "cost-price", sku, price.getCostPrice(), request.costPrice());
+        logChange(box, "gross-margin", sku, price.getGrossMargin(), request.grossMargin());
+        logChange(box, "remark", sku, price.getRemark(), request.remark());
+        logChange(box, "price-status", sku, price.getStatus(), request.priceStatus());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -225,9 +259,12 @@ public class ProductService {
         return user.groups().contains(CognitoRole.ADMIN) || user.groups().contains(CognitoRole.SUPER_ADMIN);
     }
 
-    private void updateUrls(List<Url> urls, String sku) {
+    private void updateUrls(List<Url> urls, String sku, LogBox box) {
         // if no url provided, do nothing
         if (Objects.isNull(urls)) return;
+
+        // compare the URLs before making changes to the database
+        compareProductUrls(productMapper.getProductUrls(sku), urls, sku, box);
 
         // delete existing url to prepare for updates
         productMapper.deleteProductUrl(sku);
@@ -286,5 +323,62 @@ public class ProductService {
                 fileUploadService.getDateString(fileUpload.getCreated()) + "/" +
                 // filename.file_ext
                 fileUpload.getFileName() + "." + fileUpload.getFileExt();
+    }
+
+    private void compareProductUrls(List<ProductUrl> urls, List<Url> changes, String sku, LogBox box) {
+        var field = "url";
+
+        // sort first before comparing the items one by one
+        urls.sort(Comparator.comparing(ProductUrl::getPlatform));
+        changes.sort(Comparator.comparing(Url::platform));
+
+        int i = 0, j = 0;
+        while (i < urls.size() && j < changes.size()) {
+            var left = urls.get(i);
+            var right = changes.get(j);
+            var m = comparePlatform(left.getPlatform(), right.platform());
+
+            if (m > 0) {
+                logChange(box, field, sku, formatUrlLogString(left.getPlatform(), left.getUrl()), null);
+                j++;
+            } else if (m < 0) {
+                logChange(box, field, sku, null, formatUrlLogString(right.platform(), right.url()));
+                i++;
+            } else {
+                logChange(box, field, sku,
+                        formatUrlLogString(left.getPlatform(), left.getUrl()),
+                        formatUrlLogString(right.platform(), right.url()));
+                i++; j++;
+            }
+        }
+
+        while(i < urls.size()) {
+            var url = urls.get(i++);
+            logChange(box, field, sku, formatUrlLogString(url.getPlatform(), url.getUrl()), null);
+        }
+
+        while(j < changes.size()) {
+            var url = changes.get(j++);
+            logChange(box, field, sku, null, formatUrlLogString(url.platform(), url.url()));
+        }
+    }
+
+    private int comparePlatform(ProductPlatform left, ProductPlatform right) {
+        return left.compareTo(right);
+    }
+
+    private String formatUrlLogString(ProductPlatform platform, String url) {
+        return String.join(":", platform.name(), url);
+    }
+
+    private void logChange(LogBox box, String field, String sku, Object before, Object after) {
+        // if value is considered the same, do not log this field
+        if (Objects.equals(before, after)) return;
+
+        var name = "#product.field." + field + "@field";
+
+        box.log("product.update", Collections.singletonList(sku),
+                Optional.ofNullable(before).map(b -> Arrays.asList(name, String.valueOf(b))).orElse(null),
+                Optional.ofNullable(after).map(a -> Arrays.asList(name, String.valueOf(a))).orElse(null));
     }
 }
