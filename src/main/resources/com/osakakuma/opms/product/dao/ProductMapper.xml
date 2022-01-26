@@ -83,8 +83,8 @@
     </select>
 
     <insert id="insertProductMaster">
-        insert into product_master (sku, category, sub_category, brand, four_quadrant, hs_code, hs_code_desc, created_by, status)
-        values (#{sku}, #{category}, #{subCategory}, #{brand}, #{fourQuadrant}, #{hsCode}, #{hsCodeDesc}, #{createdBy}, #{status})
+        insert into product_master (sku, category, sub_category, brand, four_quadrant, hs_code, hs_code_desc, specs, weight, created_by, status)
+        values (#{sku}, #{category}, #{subCategory}, #{brand}, #{fourQuadrant}, #{hsCode}, #{hsCodeDesc}, #{specs}, #{weight}, #{createdBy}, #{status})
     </insert>
 
     <insert id="insertProductInfo">
