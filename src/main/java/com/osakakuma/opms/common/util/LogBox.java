@@ -44,11 +44,11 @@ public class LogBox {
     public void log (String key, Collection<String> desc, Collection<String> before, Collection<String> after) {
         var title = "#" + key + LOG_TITLE_SUFFIX;
         var description = "#" + key + LOG_DESCRIPTION_SUFFIX + getArgString(desc);
-        var valBefore = "#" + Optional.ofNullable(before)
-                .map(b -> key + LOG_CONTENT_SUFFIX + getArgString(b))
+        var valBefore = Optional.ofNullable(before)
+                .map(b -> "#" + key + LOG_CONTENT_SUFFIX + getArgString(b))
                 .orElse(null);
-        var valAfter = "#" + Optional.ofNullable(after)
-                .map(a -> key + LOG_CONTENT_SUFFIX + getArgString(a))
+        var valAfter = Optional.ofNullable(after)
+                .map(a -> "#" + key + LOG_CONTENT_SUFFIX + getArgString(a))
                 .orElse(null);
 
         log(title, description, valBefore, valAfter);
