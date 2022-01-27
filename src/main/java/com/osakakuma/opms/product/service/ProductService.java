@@ -177,14 +177,14 @@ public class ProductService {
 
     private void compareProductMaster(ProductMaster master, ProductUpdateRequest request, LogBox box) {
         var sku = request.sku();
-        logChange(box, "category", sku, master.getCategory(), request.category());
-        logChange(box, "sub-category", sku, master.getSubCategory(), request.subCategory());
-        logChange(box, "brand", sku, master.getBrand(), request.brand());
-        logChange(box, "four-quadrant", sku, master.getFourQuadrant(), request.fourQuadrant());
-        logChange(box, "hs-code", sku, master.getHsCode(), request.hsCode());
-        logChange(box, "specs", sku, master.getSpecs(), request.specs());
-        logChange(box, "weight", sku, master.getWeight(), request.weight());
-        logChange(box, "status", sku, master.getStatus(), request.status());
+        box.logChange("category", sku, master.getCategory(), request.category());
+        box.logChange("sub-category", sku, master.getSubCategory(), request.subCategory());
+        box.logChange("brand", sku, master.getBrand(), request.brand());
+        box.logChange("four-quadrant", sku, master.getFourQuadrant(), request.fourQuadrant());
+        box.logChange("hs-code", sku, master.getHsCode(), request.hsCode());
+        box.logChange("specs", sku, master.getSpecs(), request.specs());
+        box.logChange("weight", sku, master.getWeight(), request.weight());
+        box.logChange("status", sku, master.getStatus(), request.status());
     }
 
     private void updateProductInfo(ProductInfo info, ProductUpdateRequest request) {
@@ -205,11 +205,11 @@ public class ProductService {
 
     private void compareProductPrice(ProductPrice price, ProductUpdateRequest request, LogBox box) {
         var sku = request.sku();
-        logChange(box, "sell-price", sku, price.getSellPrice(), request.sellPrice());
-        logChange(box, "cost-price", sku, price.getCostPrice(), request.costPrice());
-        logChange(box, "gross-margin", sku, price.getGrossMargin(), request.grossMargin());
-        logChange(box, "remark", sku, price.getRemark(), request.remark());
-        logChange(box, "price-status", sku, price.getStatus(), request.priceStatus());
+        box.logChange("sell-price", sku, price.getSellPrice(), request.sellPrice());
+        box.logChange("cost-price", sku, price.getCostPrice(), request.costPrice());
+        box.logChange("gross-margin", sku, price.getGrossMargin(), request.grossMargin());
+        box.logChange("remark", sku, price.getRemark(), request.remark());
+        box.logChange("price-status", sku, price.getStatus(), request.priceStatus());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -339,13 +339,13 @@ public class ProductService {
             var m = comparePlatform(left.getPlatform(), right.platform());
 
             if (m > 0) {
-                logChange(box, field, sku, formatUrlLogString(left.getPlatform(), left.getUrl()), null);
+                box.logChange(field, sku, formatUrlLogString(left.getPlatform(), left.getUrl()), null);
                 j++;
             } else if (m < 0) {
-                logChange(box, field, sku, null, formatUrlLogString(right.platform(), right.url()));
+                box.logChange(field, sku, null, formatUrlLogString(right.platform(), right.url()));
                 i++;
             } else {
-                logChange(box, field, sku,
+                box.logChange(field, sku,
                         formatUrlLogString(left.getPlatform(), left.getUrl()),
                         formatUrlLogString(right.platform(), right.url()));
                 i++; j++;
@@ -354,12 +354,12 @@ public class ProductService {
 
         while(i < urls.size()) {
             var url = urls.get(i++);
-            logChange(box, field, sku, formatUrlLogString(url.getPlatform(), url.getUrl()), null);
+            box.logChange(field, sku, formatUrlLogString(url.getPlatform(), url.getUrl()), null);
         }
 
         while(j < changes.size()) {
             var url = changes.get(j++);
-            logChange(box, field, sku, null, formatUrlLogString(url.platform(), url.url()));
+            box.logChange(field, sku, null, formatUrlLogString(url.platform(), url.url()));
         }
     }
 
@@ -369,16 +369,5 @@ public class ProductService {
 
     private String formatUrlLogString(ProductPlatform platform, String url) {
         return String.join(":", platform.name(), url);
-    }
-
-    private void logChange(LogBox box, String field, String sku, Object before, Object after) {
-        // if value is considered the same, do not log this field
-        if (Objects.equals(before, after)) return;
-
-        var name = "#product.field." + field + "@field";
-
-        box.log("product.update", Collections.singletonList(sku),
-                Optional.ofNullable(before).map(b -> Arrays.asList(name, String.valueOf(b))).orElse(null),
-                Optional.ofNullable(after).map(a -> Arrays.asList(name, String.valueOf(a))).orElse(null));
     }
 }

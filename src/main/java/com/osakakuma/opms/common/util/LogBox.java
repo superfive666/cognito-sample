@@ -33,6 +33,26 @@ public class LogBox {
     // storing logs to be batched inserted into the database
     private final List<AuditLog> logs = new ArrayList<>(10);
 
+    public void logChange(String field, String sku, Object before, Object after) {
+        log(field, sku, before, after, "product.update");
+    }
+
+    public void logChangePriceBatch(String field, String sku, Object before, Object after) {
+        log(field, sku, before, after, "price.batch");
+    }
+
+    private void log(String field, String sku, Object before, Object after, String key) {
+
+        // if value is considered the same, do not log this field
+        if (Objects.equals(before, after)) return;
+
+        var name = "#product.field." + field + "@field";
+
+        log("product.update", Collections.singletonList(sku),
+                Optional.ofNullable(before).map(b -> Arrays.asList(name, String.valueOf(b))).orElse(null),
+                Optional.ofNullable(after).map(a -> Arrays.asList(name, String.valueOf(a))).orElse(null));
+    }
+
     /**
      * This is a shortcut method that creates a log entry with title, description, value with the same category suffix.
      *

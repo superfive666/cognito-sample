@@ -58,6 +58,14 @@ insert into message_i18n (locale, key, val, category) values ('zh', 'product.upd
 insert into message_i18n (locale, key, val, category) values ('zh', 'product.update', '修改产品({0})', 'logDescription') on conflict do nothing;
 insert into message_i18n (locale, key, val, category) values ('zh', 'product.update', '产品项({0})，产品信息({1})', 'logContent') on conflict do nothing;
 
+-- price.batch
+insert into message_i18n (locale, key, val, category) values ('en', 'price.batch', 'Price batch update', 'logTitle') on conflict do nothing;
+insert into message_i18n (locale, key, val, category) values ('en', 'price.batch', 'Update product ({0}) via batch', 'logDescription') on conflict do nothing;
+insert into message_i18n (locale, key, val, category) values ('en', 'price.batch', 'Pricing of ({0}), value ({1})', 'logContent') on conflict do nothing;
+insert into message_i18n (locale, key, val, category) values ('zh', 'price.batch', '批量更新产品价格信息', 'logTitle') on conflict do nothing;
+insert into message_i18n (locale, key, val, category) values ('zh', 'price.batch', '产品({0})价格批量修改', 'logDescription') on conflict do nothing;
+insert into message_i18n (locale, key, val, category) values ('zh', 'price.batch', '价格项({0}), 价格值({0})', 'logContent') on conflict do nothing;
+
 -- general
 insert into message_i18n (locale, key, val, category) values ('en', 'product.status.approve', 'Approve', 'general') on conflict do nothing;
 insert into message_i18n (locale, key, val, category) values ('zh', 'product.status.approve', '审核通过', 'general') on conflict do nothing;
