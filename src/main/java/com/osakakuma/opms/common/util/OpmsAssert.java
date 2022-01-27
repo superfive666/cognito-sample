@@ -2,8 +2,8 @@ package com.osakakuma.opms.common.util;
 
 import com.osakakuma.opms.config.model.CognitoRole;
 import com.osakakuma.opms.config.model.CognitoUser;
-import com.osakakuma.opms.error.OpmsUnauthorizedException;
-import com.osakakuma.opms.error.OpmsValidationException;
+import com.osakakuma.opms.config.error.OpmsUnauthorizedException;
+import com.osakakuma.opms.config.error.OpmsValidationException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package com.osakakuma.opms.error;
+package com.osakakuma.opms.config.error;
 
 import com.osakakuma.opms.common.model.BaseResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;

@@ -1,4 +1,4 @@
-package com.osakakuma.opms.error;
+package com.osakakuma.opms.config.error;
 
 public class OpmsUnauthorizedException extends RuntimeException {
     public OpmsUnauthorizedException(String message) {

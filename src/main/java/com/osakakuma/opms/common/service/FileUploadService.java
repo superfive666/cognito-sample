@@ -8,7 +8,7 @@ import com.osakakuma.opms.common.model.FileUploadRequest;
 import com.osakakuma.opms.common.model.FileUploadResponse;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import com.osakakuma.opms.config.model.CognitoUser;
-import com.osakakuma.opms.error.OpmsException;
+import com.osakakuma.opms.config.error.OpmsException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
