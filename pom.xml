@@ -71,13 +71,13 @@
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>3.18.2</version>
+			<version>3.18.3</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.auth0/jwks-rsa -->
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>jwks-rsa</artifactId>
-			<version>0.20.0</version>
+			<version>0.20.1</version>
 		</dependency>
 
 		<dependency>
@@ -133,8 +133,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>22.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<dependencyManagement>
 		<dependencies>

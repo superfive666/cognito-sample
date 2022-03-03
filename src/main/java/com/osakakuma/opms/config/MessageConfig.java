@@ -3,6 +3,8 @@ package com.osakakuma.opms.config;
 import com.osakakuma.opms.common.util.OpmsAssert;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +52,8 @@ public class MessageConfig {
         private volatile long lastQuery = 0L;
 
         @Override
-        protected MessageFormat resolveCode(String code, Locale locale) {
+        @Contract("_, _ -> new")
+        protected @NotNull MessageFormat resolveCode(String code, Locale locale) {
             return new MessageFormat(resolve(code, locale), locale);
         }
 

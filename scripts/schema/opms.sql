@@ -188,3 +188,18 @@ comment on column product_image.width is 'The image width parameter for front-en
 comment on column product_image.path is 'The image URL request path parameter without the host name';
 comment on column product_image.seq is 'Zero-based index for the images related to the product record for ordering purpose';
 grant select, insert, update, delete on product_image to opms_app_role;
+
+-- Inventory Master Record table
+create table if not exists inventory (
+    batch_code character varying (40) primary key,
+    sku character varying (20),
+    expiry timestamp,
+    constraint fk_inventory foreign key (sku)
+    references product_master (sku)
+    on delete cascade
+);
+comment on table inventory is 'Inventory master records correlating to the product_master table';
+comment on column inventory.batch_code is 'The primary key of inventory that should not be duplicating';
+comment on column inventory.sku is 'The Product Globally Unique SKU key describing the current inventory';
+comment on column inventory.expiry is 'The stipulated expiry time of the inventory batch';
+grant select, insert, update, delete on inventory to opms_app_role;

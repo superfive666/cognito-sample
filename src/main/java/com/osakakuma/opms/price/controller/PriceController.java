@@ -27,7 +27,7 @@ public class PriceController {
     @Operation(summary = "List product price", description = "List product pricing information only")
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BaseResponse<PageInfo<ProductPrice>>> listPrice(CognitoUser user, @Valid PriceListRequest request) {
-       return BaseResponse.success(priceService.listPrices(user, request));
+        return BaseResponse.success(priceService.listPrices(user, request));
     }
 
     @Operation(summary = "Batch price update", description = "Update a batch of pricing information")
